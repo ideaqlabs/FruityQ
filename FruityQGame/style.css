@@ -9,9 +9,7 @@ body {
   color: white;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 #startScreen, #gameOverScreen {
   text-align: center;
@@ -34,10 +32,7 @@ button {
   color: white;
   transition: background 0.3s;
 }
-
-button:hover {
-  background: #e73370;
-}
+button:hover { background: #e73370; }
 
 #hud {
   display: flex;
@@ -54,4 +49,5 @@ canvas {
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  cursor: none; /* hide mouse pointer inside canvas */
 }
