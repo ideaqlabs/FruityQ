@@ -5,15 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FruityQ</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>FruityQ</h1>
-  <div id="hud">
-    <span id="score">Score: 0</span>
-    <span id="timer">Time: 60</span>
-    <span id="coins">Coins: 0</span>
+  <div id="startScreen">
+    <h1>🍉 FruityQ 🍎</h1>
+    <button id="startBtn">Start Game</button>
   </div>
-  <canvas id="gameCanvas" width="480" height="640"></canvas>
+
+  <div id="gameUI" class="hidden">
+    <div id="hud">
+      <span id="score">Score: 0</span>
+      <span id="timer">Time: 60</span>
+      <span id="coins">Coins: 0</span>
+    </div>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+  </div>
+
+  <div id="gameOverScreen" class="hidden">
+    <h2>Game Over!</h2>
+    <p id="finalScore"></p>
+    <button onclick="restartGame()">Play Again</button>
+  </div>
 
   <script src="game.js"></script>
 </body>
