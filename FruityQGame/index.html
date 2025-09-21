@@ -1,377 +1,69 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FruityPi — Inspired Web Game (Complete)</title>
-  <style>
-    :root{
-      --bg:#071427;
-      --panel:#0b1220;
-      --accent:#ffd166;
-      --muted:#9aa6b2;
-      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#031226);color:#e6eef6}
-    .wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;align-items:start;gap:18px;padding:18px;box-sizing:border-box}
-    header{display:flex;align-items:center;justify-content:space-between}
-    h1{font-size:20px;margin:0}
-    .controls{display:flex;gap:10px;align-items:center}
-    button{background:linear-gradient(180deg,#ffffff10,#00000000);border:1px solid #ffffff14;color:var(--accent);padding:8px 12px;border-radius:12px;cursor:pointer}
-    button.ghost{background:transparent;border:1px solid #ffffff12;color:var(--muted)}
+<div class="stat"><div class="label">TIME</div><div id="timer" class="value">60</div></div>
+</div>
+<button id="startBtn">Start</button>
+<button id="pauseBtn" class="ghost">Pause</button>
+</div>
+</header>
 
-    .stage{display:flex;gap:20px;align-items:flex-start}
-    .canvas-wrap{background:linear-gradient(180deg,#061226,#022036);border-radius:16px;padding:12px;box-shadow:0 8px 30px #0008;flex:1;min-height:520px;display:flex;flex-direction:column}
-    #gameCanvas{width:100%;height:520px;border-radius:12px;display:block;background:transparent}
-    .sidebar{width:260px;min-width:220px}
-    .panel{background:linear-gradient(180deg,var(--panel),#071226);padding:12px;border-radius:12px;border:1px solid #ffffff06}
 
-    .hud{display:flex;gap:12px;align-items:center}
-    .stat{display:flex;flex-direction:column}
-    .stat .label{font-size:12px;color:var(--muted)}
-    .stat .value{font-weight:700;color:var(--accent)}
+<main class="stage">
+<div class="canvas-wrap panel">
+<canvas id="gameCanvas" width="900" height="520" tabindex="0" aria-label="FruityQ game canvas"></canvas>
+<div class="bottom-row">
+<div id="message" class="credits">Press Start to begin. Move the basket with mouse/touch or arrow keys.</div>
+<div class="credits">Highscore: <span id="highscore">0</span></div>
+</div>
+</div>
 
-    .center{display:grid;place-items:center}
-    footer{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
 
-    @media (max-width:880px){ .stage{flex-direction:column} .sidebar{width:100%} #gameCanvas{height:420px} .canvas-wrap{min-height:420px} }
+<aside class="sidebar">
+<div class="panel">
+<h3>Game Info</h3>
+<p>Catch fruits to earn coins. Bombs deduct coins. Time-limited rounds.</p>
+</div>
 
-    .credits{font-size:12px;color:var(--muted)}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>FruityPi — Inspired (Complete)</h1>
-      <div class="controls">
-        <div class="hud">
-          <div class="stat"><div class="label">COINS</div><div id="coins" class="value">0</div></div>
-          <div style="width:14px"></div>
-          <div class="stat"><div class="label">LEVEL</div><div id="level" class="value">1</div></div>
-        </div>
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn" class="ghost">Pause</button>
-      </div>
-    </header>
 
-    <main class="stage">
-      <div class="canvas-wrap panel">
-        <canvas id="gameCanvas" width="900" height="520" tabindex="0" aria-label="Game canvas. Move your basket and catch fruits."></canvas>
-        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-          <div class="center">
-            <div id="message" class="credits">Press Start to begin. Use mouse/touch (left-right) to move the basket.</div>
-          </div>
-          <div>
-            <div class="credits">Highscore: <span id="highscore">0</span></div>
-          </div>
-        </div>
-      </div>
+<div class="panel">
+<h3>Upgrades</h3>
+<p>Buy upgrades with coins (saved locally).</p>
+<div class="upgrades">
+<button id="buyMagnet">Buy Magnet (50)</button>
+<button id="buySlow">Buy Slow Time (100)</button>
+<label>Round Time: <select id="timeSelect"><option value="45">45s</option><option value="60" selected>60s</option><option value="90">90s</option></select></label>
+</div>
+</div>
 
-      <aside class="sidebar">
-        <div class="panel" style="margin-bottom:12px">
-          <h3 style="margin:0 0 8px 0">Game Info</h3>
-          <p style="margin:0;color:var(--muted);font-size:13px">Catch fruits to earn coins (Pi). Golden fruits and combos increase your haul. Difficulty scales with time.</p>
-        </div>
 
-        <div class="panel" style="margin-bottom:12px">
-          <h3 style="margin:0 0 8px 0">Upgrades (local)</h3>
-          <p style="margin:0 0 8px 0;color:var(--muted);font-size:13px">Spend coins to buy passive bonuses (stored in localStorage).</p>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button id="buyMagnet">Buy Magnet (50)</button>
-            <button id="buySlow">Buy Slow Time (100)</button>
-          </div>
-        </div>
+<div class="panel">
+<h3>Controls</h3>
+<ul>
+<li>Mouse/touch drag left-right to move</li>
+<li>Arrow keys / A D to move</li>
+<li>Click falling fruit for small bonus</li>
+</ul>
+</div>
+</aside>
+</main>
 
-        <div class="panel">
-          <h3 style="margin:0 0 8px 0">Controls</h3>
-          <ul style="margin:0;padding-left:18px;color:var(--muted)">
-            <li>Mouse / touch drag left-right to move basket</li>
-            <li>Click fruits for a small bonus</li>
-            <li>Pause to stop time</li>
-          </ul>
-        </div>
-      </aside>
-    </main>
 
-    <footer>
-      <div class="credits">Prototype — built for learning. Save locally: highscore and upgrades saved in browser.</div>
-      <div class="credits">Tips: Try to chain catches for combo multipliers.</div>
-    </footer>
-  </div>
+<footer>
+<div class="credits">FruityQ — Prototype. Local saves only.</div>
+<div class="credits">Bomb penalty: -10 coins</div>
+</footer>
+</div>
 
-  <script>
-  // Complete, polished single-file version.
-  const $ = id => document.getElementById(id);
-  const rand = (a,b)=>Math.random()*(b-a)+a;
-  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
-  const canvas = $('gameCanvas');
-  const ctx = canvas.getContext('2d');
+<template id="endTemplate">
+<div class="end-screen">
+<h2>Round Over</h2>
+<p id="finalScore">Score: 0</p>
+<p id="finalCoins">Coins: 0</p>
+<button id="playAgain">Play Again</button>
+</div>
+</template>
 
-  function resizeCanvasToDisplaySize(){
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', ()=>{ resizeCanvasToDisplaySize(); drawScene(); });
-  // initial resize after DOM ready
-  resizeCanvasToDisplaySize();
 
-  // State
-  let running = false, paused = false;
-  let coins = 0, level = 1, score = 0;
-  let highscore = parseInt(localStorage.getItem('fp_highscore') || '0', 10) || 0; $('highscore').textContent = highscore;
-
-  let upgrades = {};
-  try{ upgrades = JSON.parse(localStorage.getItem('fp_upgrades') || '{}') || {}; } catch(err){ upgrades = {}; }
-  if(!('magnet' in upgrades)) upgrades.magnet = 0; if(!('slow' in upgrades)) upgrades.slow = 0;
-
-  function updateHUD(){ $('coins').textContent = Math.floor(coins); $('level').textContent = level; }
-  updateHUD();
-
-  // Player
-  const player = {
-    x: canvas.clientWidth/2,
-    y: canvas.clientHeight - 60,
-    w: 160,
-    h: 36,
-    targetX: canvas.clientWidth/2,
-    draw(){
-      const x = this.x - this.w/2, y = this.y - this.h/2;
-      ctx.save();
-      ctx.fillStyle = '#ffffff12'; ctx.strokeStyle = '#ffffff22'; ctx.lineWidth = 2;
-      roundRect(ctx, x, y, this.w, this.h, 10); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,209,102,0.98)'; roundRect(ctx, x+8, y-10, this.w-16, 14, 8); ctx.fill();
-      // basket slats
-      ctx.fillStyle = '#00000055'; ctx.fillRect(x+8, y+this.h-8, this.w-16, 6);
-      ctx.restore();
-    },
-    update(dt){
-      // fast, frame-rate-independent smoothing using exponential lerp
-      const responsiveness = 18 + upgrades.magnet*2.5; // larger => faster
-      const alpha = 1 - Math.exp(-responsiveness * dt);
-      this.x += (this.targetX - this.x) * alpha;
-      // clamp inside visible canvas area
-      this.x = clamp(this.x, this.w/2, canvas.clientWidth - this.w/2);
-    }
-  };
-
-  // Fruit definitions (with bright colors)
-  const FRUIT_TYPES = [
-    {emoji:'🍎', value:1, size:34, rarity:0.6, color:'#ff4d4d'},
-    {emoji:'🍊', value:2, size:36, rarity:0.2, color:'#ff9a2a'},
-    {emoji:'🍐', value:3, size:34, rarity:0.12, color:'#6fe08f'},
-    {emoji:'🍍', value:6, size:42, rarity:0.06, color:'#ffe56b'},
-    {emoji:'🥭', value:12, size:48, rarity:0.02, special:'gold', color:'#ffd700'}
-  ];
-
-  function pickFruit(){
-    const r = Math.random();
-    let accum = 0;
-    for(const f of FRUIT_TYPES){ accum += f.rarity; if(r < accum) return {...f}; }
-    return {...FRUIT_TYPES[0]};
-  }
-
-  let entities = []; // fruits, particles, floating texts
-
-  function spawnFruit(){
-    const f = pickFruit();
-    const ent = {
-      type: 'fruit',
-      x: rand(40, canvas.clientWidth - 40),
-      y: -40,
-      vx: rand(-24, 24),
-      vy: rand(60 + level*6, 120 + level*20),
-      size: f.size,
-      emoji: f.emoji,
-      value: f.value,
-      special: f.special || null,
-      color: f.color,
-      rotation: rand(-0.8, 0.8)
-    };
-    entities.push(ent);
-  }
-
-  function spawnParticles(x,y,count=12,color='#fff'){
-    for(let i=0;i<count;i++){
-      entities.push({type:'p', x, y, vx:rand(-220,220), vy:rand(-260, -20), life:rand(0.45,1.0), r:rand(2,6), color});
-    }
-  }
-
-  // Floating texts
-  function spawnText(x,y,txt,color='#ffd166'){ entities.push({type:'text', x, y, txt, life:0.9, color}); }
-
-  // Combo system
-  let combo = 0, comboTimer = 0;
-  function addCombo(){ combo++; comboTimer = 1.6; }
-
-  // Spawn timing
-  let lastSpawn = 0, spawnInterval = 0.85; let timeElapsed = 0; let lastTime = 0;
-
-  function resetGame(){ entities = []; coins = 0; score = 0; level = 1; combo = 0; comboTimer = 0; timeElapsed = 0; lastSpawn = 0; spawnInterval = 0.85; updateHUD(); }
-
-  function gameTick(t){
-    if(!running){ lastTime = t; requestAnimationFrame(gameTick); return; }
-    if(paused){ lastTime = t; requestAnimationFrame(gameTick); return; }
-
-    const dt = Math.min((t - lastTime) / 1000, 0.05); lastTime = t; timeElapsed += dt;
-
-    // level scales every 12-15 seconds
-    const newLevel = Math.floor(timeElapsed / 12) + 1; if(newLevel !== level) level = newLevel;
-    updateHUD();
-
-    // spawn frequency adapts with level and slow upgrades
-    lastSpawn += dt;
-    const inv = spawnInterval * Math.max(0.5, 1 - level * 0.03 - upgrades.slow * 0.02);
-    if(lastSpawn > inv){ spawnFruit(); lastSpawn = 0; }
-
-    // update entities
-    for(let i = entities.length - 1; i >= 0; i--){
-      const e = entities[i];
-      if(e.type === 'fruit'){
-        e.vy += 260 * dt; // gravity
-        e.x += e.vx * dt; e.y += e.vy * dt; e.rotation += 0.12 * dt;
-
-        // catch detection (basket region)
-        const bx = player.x; const by = player.y;
-        const catchW = player.w * 0.5;
-        if(e.y + e.size/2 >= by - player.h/2 && e.y - e.size/2 < by + player.h/2 && Math.abs(e.x - bx) < catchW){
-          entities.splice(i, 1);
-          let gain = e.value * (1 + combo * 0.12);
-          if(e.special === 'gold') gain *= 5;
-          coins += gain; score += gain;
-          addCombo(); spawnParticles(e.x, e.y, Math.floor(8 + gain), e.color || '#fff'); spawnText(e.x, e.y - 10, '+' + Math.floor(gain));
-          if(score > highscore){ highscore = Math.floor(score); $('highscore').textContent = highscore; localStorage.setItem('fp_highscore', highscore); }
-        }
-        else if(e.y > canvas.clientHeight + 80){ // missed
-          entities.splice(i, 1); combo = 0; comboTimer = 0; spawnParticles(e.x, canvas.clientHeight - 40, 6, '#aaaaaa');
-        }
-      }
-      else if(e.type === 'p'){
-        e.vy += 400 * dt; e.vx *= 0.995; e.x += e.vx * dt; e.y += e.vy * dt; e.life -= dt;
-        if(e.life <= 0) entities.splice(i, 1);
-      }
-      else if(e.type === 'text'){
-        e.y -= 36 * dt; e.life -= dt; if(e.life <= 0) entities.splice(i, 1);
-      }
-    }
-
-    if(comboTimer > 0){ comboTimer -= dt; if(comboTimer <= 0) combo = 0; }
-
-    player.update(dt);
-
-    drawScene();
-
-    requestAnimationFrame(gameTick);
-  }
-
-  // Input handlers with snappy response
-  let dragging = false;
-  function getPointerX(e){ const rect = canvas.getBoundingClientRect(); const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX; return clientX - rect.left; }
-
-  function pointerDown(e){
-    dragging = true; const px = getPointerX(e); player.targetX = px; // immediate micro-response for snappy feel
-    player.x += (player.targetX - player.x) * 0.5; // jump a bit toward touch
-  }
-  function pointerMove(e){ if(!dragging) return; const px = getPointerX(e); player.targetX = px; }
-  function pointerUp(e){ dragging = false; }
-
-  canvas.addEventListener('mousedown', pointerDown); canvas.addEventListener('mousemove', pointerMove); window.addEventListener('mouseup', pointerUp);
-  canvas.addEventListener('touchstart', pointerDown, {passive:true}); canvas.addEventListener('touchmove', pointerMove, {passive:true}); window.addEventListener('touchend', pointerUp);
-
-  // clicking a fruit for small instant bonus
-  canvas.addEventListener('click', (ev)=>{
-    const rect = canvas.getBoundingClientRect(); const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
-    for(let i = entities.length - 1; i >= 0; i--){ const e = entities[i]; if(e.type === 'fruit'){
-      const dx = e.x - x, dy = e.y - y; if(Math.sqrt(dx*dx + dy*dy) < e.size * 0.6){ coins += 0.5; score += 0.5; spawnParticles(e.x, e.y, 6, e.color); entities.splice(i, 1); break; }
-    }}
-  });
-
-  // keyboard controls
-  window.addEventListener('keydown', (e)=>{
-    if(e.key === 'ArrowLeft' || e.key === 'a'){ player.targetX -= 120; }
-    if(e.key === 'ArrowRight' || e.key === 'd'){ player.targetX += 120; }
-    if(e.key === ' '){ togglePause(); }
-    // clamp after keyboard change
-    player.targetX = clamp(player.targetX, player.w/2, canvas.clientWidth - player.w/2);
-  });
-
-  // Draw helpers
-  function roundRect(ctx,x,y,w,h,r){ if(r===undefined) r=6; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-
-  function drawScene(){
-    // clear
-    ctx.clearRect(0,0,canvas.clientWidth, canvas.clientHeight);
-
-    // background gradient
-    ctx.save();
-    const g = ctx.createLinearGradient(0,0,0,canvas.clientHeight); g.addColorStop(0,'#052038'); g.addColorStop(1,'#021826');
-    ctx.fillStyle = g; ctx.fillRect(0,0,canvas.clientWidth, canvas.clientHeight);
-    ctx.restore();
-
-    // draw entities
-    for(const e of entities){
-      if(e.type === 'fruit'){
-        ctx.save();
-        // bright colored circle behind the emoji to make it pop
-        ctx.beginPath(); ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 10;
-        const radius = e.size/2 + 6;
-        ctx.fillStyle = e.color || '#fff'; ctx.globalAlpha = 1; ctx.arc(e.x, e.y, radius, 0, Math.PI*2); ctx.fill();
-
-        // golden special glow
-        if(e.special === 'gold'){
-          ctx.beginPath(); ctx.shadowColor = 'rgba(255,215,100,0.9)'; ctx.shadowBlur = 24; ctx.fillStyle = '#fff3bf'; ctx.arc(e.x, e.y, radius + 6, 0, Math.PI*2); ctx.fill();
-        }
-
-        // draw emoji on top
-        ctx.translate(e.x, e.y); ctx.rotate(e.rotation);
-        ctx.font = e.size + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        // subtle shadow for emoji
-        ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillText(e.emoji, 3, 3);
-        ctx.fillStyle = '#ffffff'; ctx.fillText(e.emoji, 0, 0);
-        ctx.restore();
-      }
-      else if(e.type === 'p'){
-        ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, e.life)); ctx.fillStyle = e.color || '#fff'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill(); ctx.restore();
-      }
-      else if(e.type === 'text'){
-        ctx.save(); ctx.globalAlpha = Math.max(0, e.life); ctx.font = '18px sans-serif'; ctx.fillStyle = e.color || '#ffd166'; ctx.textAlign = 'center'; ctx.fillText(e.txt, e.x, e.y); ctx.restore();
-      }
-    }
-
-    // ground
-    ctx.save(); ctx.fillStyle = '#00000066'; ctx.fillRect(0, canvas.clientHeight - 28, canvas.clientWidth, 28); ctx.fillStyle = '#ffffff0c'; ctx.fillRect(0, canvas.clientHeight - 28, canvas.clientWidth, 1); ctx.restore();
-
-    // draw player last so it's on top
-    player.draw();
-
-    // HUD overlay
-    if(combo > 0){ ctx.save(); ctx.font = '18px sans-serif'; ctx.fillStyle = '#ffd166'; ctx.textAlign = 'left'; ctx.fillText('COMBO x' + combo, 18, 28); ctx.restore(); }
-  }
-
-  // UI controls
-  $('startBtn').addEventListener('click', ()=>{
-    if(!running){ running = true; paused = false; resetGame(); lastTime = performance.now(); requestAnimationFrame(gameTick); $('message').textContent = 'Go! Catch fruits and build combos.'; $('pauseBtn').textContent = 'Pause'; }
-    else{ resetGame(); $('message').textContent = 'Restarted.'; }
-  });
-
-  $('pauseBtn').addEventListener('click', ()=>{ togglePause(); });
-  function togglePause(){ if(!running) return; paused = !paused; $('pauseBtn').textContent = paused ? 'Resume' : 'Pause'; $('message').textContent = paused ? 'Paused' : 'Running'; }
-
-  // Upgrades (local)
-  $('buyMagnet').addEventListener('click', ()=>{ if(coins >= 50){ coins -= 50; upgrades.magnet++; localStorage.setItem('fp_upgrades', JSON.stringify(upgrades)); $('message').textContent = 'Magnet purchased.'; updateHUD(); } else $('message').textContent = 'Not enough coins.'; });
-  $('buySlow').addEventListener('click', ()=>{ if(coins >= 100){ coins -= 100; upgrades.slow++; localStorage.setItem('fp_upgrades', JSON.stringify(upgrades)); $('message').textContent = 'Slow Time purchased.'; updateHUD(); } else $('message').textContent = 'Not enough coins.'; });
-
-  // expose internals for tinkering in console
-  window.FruityPi = { entities, spawnFruit, resetGame, player, FRUIT_TYPES };
-
-  // friendly tip
-  setTimeout(()=>{ $('message').textContent = 'Tip: Click on falling fruits for a small instant bonus.'; }, 2000);
-
-  // final draw
-  drawScene();
-  </script>
+<script src="game.js"></script>
 </body>
 </html>
