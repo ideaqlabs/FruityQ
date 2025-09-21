@@ -3,30 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FruityPi — Inspired Web Game</title>
+  <title>FruityPi — Inspired Web Game (Complete)</title>
   <style>
-    /* --- Reset & layout --- */
     :root{
-      --bg:#0f1724; /* deep navy */
+      --bg:#071427;
       --panel:#0b1220;
-      --accent:#ffd166; /* warm gold */
+      --accent:#ffd166;
       --muted:#9aa6b2;
       font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#071024);color:#e6eef6}
-    .wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;align-items:start;gap:18px;padding:20px;box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#031226);color:#e6eef6}
+    .wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;align-items:start;gap:18px;padding:18px;box-sizing:border-box}
     header{display:flex;align-items:center;justify-content:space-between}
     h1{font-size:20px;margin:0}
     .controls{display:flex;gap:10px;align-items:center}
-    button{background:linear-gradient(180deg,#ffffff10,#00000000);border:1px solid #ffffff18;color:var(--accent);padding:8px 12px;border-radius:12px;cursor:pointer}
+    button{background:linear-gradient(180deg,#ffffff10,#00000000);border:1px solid #ffffff14;color:var(--accent);padding:8px 12px;border-radius:12px;cursor:pointer}
     button.ghost{background:transparent;border:1px solid #ffffff12;color:var(--muted)}
 
-    /* --- Game area --- */
     .stage{display:flex;gap:20px;align-items:flex-start}
-    .canvas-wrap{background:linear-gradient(180deg,#071226,#05223a);border-radius:16px;padding:12px;box-shadow:0 8px 30px #0008;flex:1;min-height:520px;display:flex;flex-direction:column}
-    #gameCanvas{width:100%;height:520px;border-radius:12px;display:block;background:linear-gradient(180deg,#06182a,#042235)}
+    .canvas-wrap{background:linear-gradient(180deg,#061226,#022036);border-radius:16px;padding:12px;box-shadow:0 8px 30px #0008;flex:1;min-height:520px;display:flex;flex-direction:column}
+    #gameCanvas{width:100%;height:520px;border-radius:12px;display:block;background:transparent}
     .sidebar{width:260px;min-width:220px}
-    .panel{background:linear-gradient(180deg,var(--panel),#071226);padding:12px;border-radius:12px;border:1px solid #ffffff08}
+    .panel{background:linear-gradient(180deg,var(--panel),#071226);padding:12px;border-radius:12px;border:1px solid #ffffff06}
 
     .hud{display:flex;gap:12px;align-items:center}
     .stat{display:flex;flex-direction:column}
@@ -34,29 +32,17 @@
     .stat .value{font-weight:700;color:var(--accent)}
 
     .center{display:grid;place-items:center}
-
     footer{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
 
-    /* small screens */
-    @media (max-width:880px){
-      .stage{flex-direction:column}
-      .sidebar{width:100%}
-      #gameCanvas{height:420px}
-      .canvas-wrap{min-height:420px}
-    }
+    @media (max-width:880px){ .stage{flex-direction:column} .sidebar{width:100%} #gameCanvas{height:420px} .canvas-wrap{min-height:420px} }
 
-    /* Fancy UI micro-interactions */
-    .pulse{animation:pulse 1.2s infinite}
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
-
-    /* Simple particle display area */
     .credits{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>FruityPi — Inspired (Prototype)</h1>
+      <h1>FruityPi — Inspired (Complete)</h1>
       <div class="controls">
         <div class="hud">
           <div class="stat"><div class="label">COINS</div><div id="coins" class="value">0</div></div>
@@ -114,148 +100,165 @@
   </div>
 
   <script>
+  // Complete, polished single-file version.
   const $ = id => document.getElementById(id);
   const rand = (a,b)=>Math.random()*(b-a)+a;
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
   const canvas = $('gameCanvas');
   const ctx = canvas.getContext('2d');
-  let W = canvas.width, H = canvas.height;
 
   function resizeCanvasToDisplaySize(){
-    const ratio = devicePixelRatio || 1;
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.floor(rect.width*ratio);
-    canvas.height = Math.floor(rect.height*ratio);
-    W = canvas.width; H = canvas.height;
-    ctx.setTransform(ratio,0,0,ratio,0,0);
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  window.addEventListener('resize', ()=>{resizeCanvasToDisplaySize(); drawStatic();});
+  window.addEventListener('resize', ()=>{ resizeCanvasToDisplaySize(); drawScene(); });
+  // initial resize after DOM ready
   resizeCanvasToDisplaySize();
 
-  let running=false, paused=false;
-  let coins = 0; let level=1; let score=0; let highscore = parseInt(localStorage.getItem('fp_highscore')||0,10);
-  $('highscore').textContent = highscore;
+  // State
+  let running = false, paused = false;
+  let coins = 0, level = 1, score = 0;
+  let highscore = parseInt(localStorage.getItem('fp_highscore') || '0', 10) || 0; $('highscore').textContent = highscore;
 
-  let upgrades = JSON.parse(localStorage.getItem('fp_upgrades')||'{}');
-  if(!upgrades.magnet) upgrades.magnet = 0; if(!upgrades.slow) upgrades.slow = 0;
+  let upgrades = {};
+  try{ upgrades = JSON.parse(localStorage.getItem('fp_upgrades') || '{}') || {}; } catch(err){ upgrades = {}; }
+  if(!('magnet' in upgrades)) upgrades.magnet = 0; if(!('slow' in upgrades)) upgrades.slow = 0;
 
   function updateHUD(){ $('coins').textContent = Math.floor(coins); $('level').textContent = level; }
   updateHUD();
 
+  // Player
   const player = {
-    x: W/2, y: H - 60, w: 160, h: 34, vx:0, targetX:W/2,
+    x: canvas.clientWidth/2,
+    y: canvas.clientHeight - 60,
+    w: 160,
+    h: 36,
+    targetX: canvas.clientWidth/2,
     draw(){
       const x = this.x - this.w/2, y = this.y - this.h/2;
       ctx.save();
-      ctx.fillStyle = '#ffffff11'; ctx.strokeStyle = '#ffffff22'; ctx.lineWidth=2;
-      roundRect(ctx,x,y,this.w,this.h,10); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,209,102,0.95)';
-      roundRect(ctx,x+8,y-8,this.w-16,12,8); ctx.fill();
-      ctx.fillStyle = '#00000050'; ctx.fillRect(x+6,y+this.h-4,this.w-12,6);
+      ctx.fillStyle = '#ffffff12'; ctx.strokeStyle = '#ffffff22'; ctx.lineWidth = 2;
+      roundRect(ctx, x, y, this.w, this.h, 10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,209,102,0.98)'; roundRect(ctx, x+8, y-10, this.w-16, 14, 8); ctx.fill();
+      // basket slats
+      ctx.fillStyle = '#00000055'; ctx.fillRect(x+8, y+this.h-8, this.w-16, 6);
       ctx.restore();
     },
     update(dt){
-      // Faster response (increase easing factor)
-      const speed = 14 + upgrades.magnet*1.2;
-      const dx = this.targetX - this.x;
-      this.vx = dx * 0.25 * speed * dt;
-      this.x += this.vx;
+      // fast, frame-rate-independent smoothing using exponential lerp
+      const responsiveness = 18 + upgrades.magnet*2.5; // larger => faster
+      const alpha = 1 - Math.exp(-responsiveness * dt);
+      this.x += (this.targetX - this.x) * alpha;
+      // clamp inside visible canvas area
       this.x = clamp(this.x, this.w/2, canvas.clientWidth - this.w/2);
     }
   };
 
+  // Fruit definitions (with bright colors)
   const FRUIT_TYPES = [
-    {emoji:'🍎', value:1, size:28, rarity:0.6, color:'#ff4d4d'},
-    {emoji:'🍊', value:2, size:30, rarity:0.2, color:'#ffa500'},
-    {emoji:'🍉', value:4, size:36, rarity:0.12, color:'#00ff66'},
-    {emoji:'🍍', value:8, size:40, rarity:0.05, color:'#ffff33'},
-    {emoji:'🥭', value:12, size:44, rarity:0.02, special:'gold', color:'#ffd700'}
+    {emoji:'🍎', value:1, size:34, rarity:0.6, color:'#ff4d4d'},
+    {emoji:'🍊', value:2, size:36, rarity:0.2, color:'#ff9a2a'},
+    {emoji:'🍐', value:3, size:34, rarity:0.12, color:'#6fe08f'},
+    {emoji:'🍍', value:6, size:42, rarity:0.06, color:'#ffe56b'},
+    {emoji:'🥭', value:12, size:48, rarity:0.02, special:'gold', color:'#ffd700'}
   ];
 
   function pickFruit(){
     const r = Math.random();
-    let accum=0;
-    for(const f of FRUIT_TYPES){accum+=f.rarity; if(r<accum) return structuredClone(f);} 
-    return structuredClone(FRUIT_TYPES[0]);
+    let accum = 0;
+    for(const f of FRUIT_TYPES){ accum += f.rarity; if(r < accum) return {...f}; }
+    return {...FRUIT_TYPES[0]};
   }
 
-  let entities = [];
+  let entities = []; // fruits, particles, floating texts
 
   function spawnFruit(){
     const f = pickFruit();
     const ent = {
-      type:'fruit',
-      x:rand(40, canvas.clientWidth-40),
-      y:-40,
-      vx:rand(-20,20),
-      vy:rand(40 + level*5, 100 + level*15),
+      type: 'fruit',
+      x: rand(40, canvas.clientWidth - 40),
+      y: -40,
+      vx: rand(-24, 24),
+      vy: rand(60 + level*6, 120 + level*20),
       size: f.size,
       emoji: f.emoji,
       value: f.value,
       special: f.special || null,
       color: f.color,
-      rotation: rand(-0.8,0.8)
+      rotation: rand(-0.8, 0.8)
     };
     entities.push(ent);
   }
 
-  function spawnParticles(x,y, count=12){
+  function spawnParticles(x,y,count=12,color='#fff'){
     for(let i=0;i<count;i++){
-      entities.push({type:'p',x,y,vx:rand(-150,150),vy:rand(-200,20),life:rand(0.4,1.0),r:rand(2,6)});
+      entities.push({type:'p', x, y, vx:rand(-220,220), vy:rand(-260, -20), life:rand(0.45,1.0), r:rand(2,6), color});
     }
   }
 
-  let combo = 0; let comboTimer = 0;
+  // Floating texts
+  function spawnText(x,y,txt,color='#ffd166'){ entities.push({type:'text', x, y, txt, life:0.9, color}); }
+
+  // Combo system
+  let combo = 0, comboTimer = 0;
   function addCombo(){ combo++; comboTimer = 1.6; }
 
-  let lastSpawn = 0; let spawnInterval = 0.9; let timeElapsed=0; let lastTime = 0;
-  function resetGame(){ entities=[]; coins=0; score=0; level=1; combo=0; comboTimer=0; timeElapsed=0; lastSpawn=0; spawnInterval=0.9; updateHUD(); }
+  // Spawn timing
+  let lastSpawn = 0, spawnInterval = 0.85; let timeElapsed = 0; let lastTime = 0;
+
+  function resetGame(){ entities = []; coins = 0; score = 0; level = 1; combo = 0; comboTimer = 0; timeElapsed = 0; lastSpawn = 0; spawnInterval = 0.85; updateHUD(); }
 
   function gameTick(t){
-    if(!running || paused){ lastTime = t; requestAnimationFrame(gameTick); return; }
-    const dt = Math.min((t-lastTime)/1000, 0.05); lastTime = t; timeElapsed += dt;
+    if(!running){ lastTime = t; requestAnimationFrame(gameTick); return; }
+    if(paused){ lastTime = t; requestAnimationFrame(gameTick); return; }
 
-    if(Math.floor(timeElapsed/15)+1 > level) level = Math.floor(timeElapsed/15)+1;
+    const dt = Math.min((t - lastTime) / 1000, 0.05); lastTime = t; timeElapsed += dt;
+
+    // level scales every 12-15 seconds
+    const newLevel = Math.floor(timeElapsed / 12) + 1; if(newLevel !== level) level = newLevel;
     updateHUD();
 
+    // spawn frequency adapts with level and slow upgrades
     lastSpawn += dt;
-    const inv = spawnInterval * Math.max(0.6, 1 - level*0.03 - upgrades.slow*0.02);
-    if(lastSpawn > inv){ spawnFruit(); lastSpawn=0; }
+    const inv = spawnInterval * Math.max(0.5, 1 - level * 0.03 - upgrades.slow * 0.02);
+    if(lastSpawn > inv){ spawnFruit(); lastSpawn = 0; }
 
-    for(let i=entities.length-1;i>=0;i--){
+    // update entities
+    for(let i = entities.length - 1; i >= 0; i--){
       const e = entities[i];
-      if(e.type==='fruit'){
-        e.vy += 180*dt;
-        e.x += e.vx*dt; e.y += e.vy*dt; e.rotation += 0.1*dt;
+      if(e.type === 'fruit'){
+        e.vy += 260 * dt; // gravity
+        e.x += e.vx * dt; e.y += e.vy * dt; e.rotation += 0.12 * dt;
+
+        // catch detection (basket region)
         const bx = player.x; const by = player.y;
-        const catchW = player.w/2;
+        const catchW = player.w * 0.5;
         if(e.y + e.size/2 >= by - player.h/2 && e.y - e.size/2 < by + player.h/2 && Math.abs(e.x - bx) < catchW){
-          entities.splice(i,1);
-          let gain = e.value * (1 + combo*0.12);
-          if(e.special==='gold') gain *= 5;
+          entities.splice(i, 1);
+          let gain = e.value * (1 + combo * 0.12);
+          if(e.special === 'gold') gain *= 5;
           coins += gain; score += gain;
-          addCombo();
-          spawnParticles(e.x,e.y,Math.floor(8 + gain));
-          entities.push({type:'text',x:e.x,y:e.y-10,life:0.9,txt:'+'+Math.floor(gain)});
-          if(score>highscore){ highscore = Math.floor(score); $('highscore').textContent = highscore; localStorage.setItem('fp_highscore', highscore); }
+          addCombo(); spawnParticles(e.x, e.y, Math.floor(8 + gain), e.color || '#fff'); spawnText(e.x, e.y - 10, '+' + Math.floor(gain));
+          if(score > highscore){ highscore = Math.floor(score); $('highscore').textContent = highscore; localStorage.setItem('fp_highscore', highscore); }
         }
-        else if(e.y > canvas.clientHeight + 80) {
-          entities.splice(i,1);
-          combo = 0; comboTimer = 0;
-          spawnParticles(e.x, canvas.clientHeight-40, 6);
+        else if(e.y > canvas.clientHeight + 80){ // missed
+          entities.splice(i, 1); combo = 0; comboTimer = 0; spawnParticles(e.x, canvas.clientHeight - 40, 6, '#aaaaaa');
         }
       }
-      else if(e.type==='p'){
-        e.vy += 400*dt; e.vx *= 0.98; e.x += e.vx*dt; e.y += e.vy*dt; e.life -= dt;
-        if(e.life <= 0) entities.splice(i,1);
+      else if(e.type === 'p'){
+        e.vy += 400 * dt; e.vx *= 0.995; e.x += e.vx * dt; e.y += e.vy * dt; e.life -= dt;
+        if(e.life <= 0) entities.splice(i, 1);
       }
-      else if(e.type==='text'){
-        e.y -= 30*dt; e.life -= dt; if(e.life<=0) entities.splice(i,1);
+      else if(e.type === 'text'){
+        e.y -= 36 * dt; e.life -= dt; if(e.life <= 0) entities.splice(i, 1);
       }
     }
 
-    if(comboTimer>0){ comboTimer -= dt; if(comboTimer<=0) combo=0; }
+    if(comboTimer > 0){ comboTimer -= dt; if(comboTimer <= 0) combo = 0; }
 
     player.update(dt);
 
@@ -264,32 +267,111 @@
     requestAnimationFrame(gameTick);
   }
 
-  let dragging=false;
-  function pointerDown(e){ dragging=true; const rect = canvas.getBoundingClientRect(); player.targetX = ((e.touches?e.touches[0].clientX:e.clientX) - rect.left); }
-  function pointerMove(e){ if(!dragging) return; const rect = canvas.getBoundingClientRect(); player.targetX = ((e.touches?e.touches[0].clientX:e.clientX) - rect.left); }
-  function pointerUp(e){ dragging=false; }
+  // Input handlers with snappy response
+  let dragging = false;
+  function getPointerX(e){ const rect = canvas.getBoundingClientRect(); const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX; return clientX - rect.left; }
+
+  function pointerDown(e){
+    dragging = true; const px = getPointerX(e); player.targetX = px; // immediate micro-response for snappy feel
+    player.x += (player.targetX - player.x) * 0.5; // jump a bit toward touch
+  }
+  function pointerMove(e){ if(!dragging) return; const px = getPointerX(e); player.targetX = px; }
+  function pointerUp(e){ dragging = false; }
 
   canvas.addEventListener('mousedown', pointerDown); canvas.addEventListener('mousemove', pointerMove); window.addEventListener('mouseup', pointerUp);
   canvas.addEventListener('touchstart', pointerDown, {passive:true}); canvas.addEventListener('touchmove', pointerMove, {passive:true}); window.addEventListener('touchend', pointerUp);
 
+  // clicking a fruit for small instant bonus
   canvas.addEventListener('click', (ev)=>{
     const rect = canvas.getBoundingClientRect(); const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
-    for(let i=entities.length-1;i>=0;i--){ const e = entities[i]; if(e.type==='fruit'){
-      const dx = e.x - x, dy = e.y - y; if(Math.sqrt(dx*dx+dy*dy) < e.size){
-        coins += 0.5; score += 0.5; spawnParticles(e.x,e.y,6); entities.splice(i,1); break; }
+    for(let i = entities.length - 1; i >= 0; i--){ const e = entities[i]; if(e.type === 'fruit'){
+      const dx = e.x - x, dy = e.y - y; if(Math.sqrt(dx*dx + dy*dy) < e.size * 0.6){ coins += 0.5; score += 0.5; spawnParticles(e.x, e.y, 6, e.color); entities.splice(i, 1); break; }
     }}
   });
 
-  window.addEventListener('keydown',(e)=>{
-    if(e.key==='ArrowLeft') player.targetX -= 60; if(e.key==='ArrowRight') player.targetX += 60;
-    if(e.key===' '){ togglePause(); }
+  // keyboard controls
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ player.targetX -= 120; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ player.targetX += 120; }
+    if(e.key === ' '){ togglePause(); }
+    // clamp after keyboard change
+    player.targetX = clamp(player.targetX, player.w/2, canvas.clientWidth - player.w/2);
   });
 
+  // Draw helpers
   function roundRect(ctx,x,y,w,h,r){ if(r===undefined) r=6; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
   function drawScene(){
+    // clear
     ctx.clearRect(0,0,canvas.clientWidth, canvas.clientHeight);
 
+    // background gradient
     ctx.save();
-    const g = ctx.createLinearGradient(0,0,0,canvas.clientHeight); g.addColorStop(0,'#071728'); g.addColorStop(1,'#021827');
-    ctx.fillStyle
+    const g = ctx.createLinearGradient(0,0,0,canvas.clientHeight); g.addColorStop(0,'#052038'); g.addColorStop(1,'#021826');
+    ctx.fillStyle = g; ctx.fillRect(0,0,canvas.clientWidth, canvas.clientHeight);
+    ctx.restore();
+
+    // draw entities
+    for(const e of entities){
+      if(e.type === 'fruit'){
+        ctx.save();
+        // bright colored circle behind the emoji to make it pop
+        ctx.beginPath(); ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 10;
+        const radius = e.size/2 + 6;
+        ctx.fillStyle = e.color || '#fff'; ctx.globalAlpha = 1; ctx.arc(e.x, e.y, radius, 0, Math.PI*2); ctx.fill();
+
+        // golden special glow
+        if(e.special === 'gold'){
+          ctx.beginPath(); ctx.shadowColor = 'rgba(255,215,100,0.9)'; ctx.shadowBlur = 24; ctx.fillStyle = '#fff3bf'; ctx.arc(e.x, e.y, radius + 6, 0, Math.PI*2); ctx.fill();
+        }
+
+        // draw emoji on top
+        ctx.translate(e.x, e.y); ctx.rotate(e.rotation);
+        ctx.font = e.size + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        // subtle shadow for emoji
+        ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillText(e.emoji, 3, 3);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(e.emoji, 0, 0);
+        ctx.restore();
+      }
+      else if(e.type === 'p'){
+        ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, e.life)); ctx.fillStyle = e.color || '#fff'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill(); ctx.restore();
+      }
+      else if(e.type === 'text'){
+        ctx.save(); ctx.globalAlpha = Math.max(0, e.life); ctx.font = '18px sans-serif'; ctx.fillStyle = e.color || '#ffd166'; ctx.textAlign = 'center'; ctx.fillText(e.txt, e.x, e.y); ctx.restore();
+      }
+    }
+
+    // ground
+    ctx.save(); ctx.fillStyle = '#00000066'; ctx.fillRect(0, canvas.clientHeight - 28, canvas.clientWidth, 28); ctx.fillStyle = '#ffffff0c'; ctx.fillRect(0, canvas.clientHeight - 28, canvas.clientWidth, 1); ctx.restore();
+
+    // draw player last so it's on top
+    player.draw();
+
+    // HUD overlay
+    if(combo > 0){ ctx.save(); ctx.font = '18px sans-serif'; ctx.fillStyle = '#ffd166'; ctx.textAlign = 'left'; ctx.fillText('COMBO x' + combo, 18, 28); ctx.restore(); }
+  }
+
+  // UI controls
+  $('startBtn').addEventListener('click', ()=>{
+    if(!running){ running = true; paused = false; resetGame(); lastTime = performance.now(); requestAnimationFrame(gameTick); $('message').textContent = 'Go! Catch fruits and build combos.'; $('pauseBtn').textContent = 'Pause'; }
+    else{ resetGame(); $('message').textContent = 'Restarted.'; }
+  });
+
+  $('pauseBtn').addEventListener('click', ()=>{ togglePause(); });
+  function togglePause(){ if(!running) return; paused = !paused; $('pauseBtn').textContent = paused ? 'Resume' : 'Pause'; $('message').textContent = paused ? 'Paused' : 'Running'; }
+
+  // Upgrades (local)
+  $('buyMagnet').addEventListener('click', ()=>{ if(coins >= 50){ coins -= 50; upgrades.magnet++; localStorage.setItem('fp_upgrades', JSON.stringify(upgrades)); $('message').textContent = 'Magnet purchased.'; updateHUD(); } else $('message').textContent = 'Not enough coins.'; });
+  $('buySlow').addEventListener('click', ()=>{ if(coins >= 100){ coins -= 100; upgrades.slow++; localStorage.setItem('fp_upgrades', JSON.stringify(upgrades)); $('message').textContent = 'Slow Time purchased.'; updateHUD(); } else $('message').textContent = 'Not enough coins.'; });
+
+  // expose internals for tinkering in console
+  window.FruityPi = { entities, spawnFruit, resetGame, player, FRUIT_TYPES };
+
+  // friendly tip
+  setTimeout(()=>{ $('message').textContent = 'Tip: Click on falling fruits for a small instant bonus.'; }, 2000);
+
+  // final draw
+  drawScene();
+  </script>
+</body>
+</html>
