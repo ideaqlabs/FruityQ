@@ -201,8 +201,8 @@ function update() {
         b.x + b.size/2 > basket.x &&
         b.x < basket.x + basket.width) {
       // bomb hit → deduct once
-      score = Math.max(0, score - 20);
-      addEffect(b.x + b.size/2, b.y, "-20", "red");
+      score = Math.max(0, score - 40);
+      addEffect(b.x + b.size/2, b.y, "-40", "red");
       basket.shake = 10;
       bombs.splice(i, 1); // remove immediately
     } else if (b.y > canvas.height) {
