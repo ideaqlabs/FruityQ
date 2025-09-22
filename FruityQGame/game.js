@@ -39,13 +39,24 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Watermark (IdeaQLabs)
-  ctx.save();
-  ctx.font = `${Math.floor(canvas.width / 10)}px "Gill Sans", sans-serif`; 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% visibility
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
-  ctx.restore();
+ctx.save();
+
+// Dynamic font size = 12% of canvas width (adjustable)
+let fontSize = Math.floor(canvas.width * 0.12);
+ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
+
+ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+
+// Debugging: draw a crosshair so you can see center point
+// ctx.fillStyle = "red";
+// ctx.fillRect(canvas.width/2 - 2, canvas.height/2 - 2, 4, 4);
+
+ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
+
+ctx.restore();
+
 
   // basket
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
