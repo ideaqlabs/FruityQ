@@ -3,21 +3,28 @@ const ctx = canvas.getContext("2d");
 
 let score, coins, timeLeft, basket, fruits, bombs, keys, gameInterval, timerInterval;
 const assets = {};
+let effects = []; // animations
 
-// preload images
-function loadAssets() {
+// preload assets
+function loadAssets(callback) {
   const names = ["basket","bomb","apple","orange","lemon","watermelon","grapes","strawberry"];
+  let loaded = 0;
   names.forEach(n => {
     assets[n] = new Image();
     assets[n].src = `assets/${n}.png`;
+    assets[n].onload = () => {
+      loaded++;
+      if (loaded === names.length) callback();
+    };
   });
 }
 
-loadAssets();
-
 const fruitTypes = ["apple","orange","lemon","watermelon","grapes","strawberry"];
 
-document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("startBtn").addEventListener("click", () => {
+  loadAssets(startGame);
+});
+
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
@@ -42,7 +49,8 @@ function initGame() {
   fruits = [];
   bombs = [];
   keys = {};
-  basket = { x: canvas.width/2 - 50, y: canvas.height - 60, width: 100, height: 60, speed: 7 };
+  effects = [];
+  basket = { x: canvas.width/2 - 50, y: canvas.height - 60, width: 100, height: 60, speed: 7, shake: 0 };
 }
 
 function startGame() {
@@ -95,6 +103,11 @@ function spawnBomb(){
   });
 }
 
+// Add effect
+function addEffect(x, y, text, color="white") {
+  effects.push({ x, y, text, color, alpha: 1, lifetime: 60 }); // 60 frames ≈ 1s
+}
+
 function update(){
   if(keys["ArrowLeft"] && basket.x > 0) basket.x -= basket.speed;
   if(keys["ArrowRight"] && basket.x + basket.width < canvas.width) basket.x += basket.speed;
@@ -109,29 +122,44 @@ function update(){
        f.x < basket.x + basket.width){
       score += 10;
       coins += 1;
+      addEffect(f.x, f.y, "+10", "lime");
       return false;
     }
     return f.y < canvas.height;
   });
 
-  // bombs collision (negative impact)
+  // bombs collision
   bombs = bombs.filter(b => {
     if(b.y + b.size > basket.y &&
        b.x + b.size/2 > basket.x &&
        b.x < basket.x + basket.width){
       score = Math.max(0, score - 15);
       coins = Math.max(0, coins - 5);
+      addEffect(b.x, b.y, "-15", "red");
+      basket.shake = 10; // trigger basket shake
       return false;
     }
     return b.y < canvas.height;
   });
+
+  // update effects
+  effects.forEach(e => {
+    e.y -= 0.5;        // float upward
+    e.alpha -= 0.02;   // fade out
+    e.lifetime--;
+  });
+  effects = effects.filter(e => e.lifetime > 0);
+
+  // basket shake
+  if (basket.shake > 0) basket.shake--;
 }
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // basket
-  ctx.drawImage(assets.basket, basket.x, basket.y, basket.width, basket.height);
+  // basket (shake effect)
+  let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
+  ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
   // fruits
   fruits.forEach(f => {
@@ -141,6 +169,16 @@ function draw(){
   // bombs
   bombs.forEach(b => {
     ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
+  });
+
+  // effects (score popups)
+  ctx.font = "20px Poppins";
+  ctx.textAlign = "center";
+  effects.forEach(e => {
+    ctx.globalAlpha = e.alpha;
+    ctx.fillStyle = e.color;
+    ctx.fillText(e.text, e.x, e.y);
+    ctx.globalAlpha = 1;
   });
 }
 
