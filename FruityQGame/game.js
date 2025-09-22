@@ -36,29 +36,22 @@ function loadAssets(callback) {
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // fill background with very deep navy blue
+  ctx.fillStyle = "#000822"; // darker than screen bg
+  ctx.globalAlpha = 1;       // full opacity
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Watermark (IdeaQLabs)
-ctx.save();
+  // Watermark (IdeaQLabs) - behind game assets
+  ctx.save();
+  let fontSize = Math.floor(canvas.width * 0.18); // scale dynamically
+  ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
+  ctx.restore();
 
-// Dynamic font size = 20% of canvas width (adjustable)
-let fontSize = Math.floor(canvas.width * 0.20);
-ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
-
-ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-
-// Debugging: draw a crosshair so you can see center point
-// ctx.fillStyle = "red";
-// ctx.fillRect(canvas.width/2 - 2, canvas.height/2 - 2, 4, 4);
-
-ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
-
-ctx.restore();
-
-
-  // basket
+  // basket (shake effect)
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
   ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
@@ -72,8 +65,8 @@ ctx.restore();
     ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
   });
 
-  // floating effects
-  ctx.font = "20px Poppins";
+  // effects (score popups)
+  ctx.font = "20px Poppins, Arial, sans-serif";
   ctx.textAlign = "center";
   effects.forEach(e => {
     ctx.globalAlpha = e.alpha;
