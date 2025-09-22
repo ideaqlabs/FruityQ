@@ -51,3 +51,11 @@ canvas {
   box-shadow: 0 6px 16px rgba(0,0,0,0.5);
   cursor: none; /* hide mouse pointer inside canvas */
 }
+
+.intro-watermark {
+  font-family: "Gill Sans", Arial, sans-serif;
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.6); /* 60% visibility */
+  text-align: center;
+  margin-top: 40px; /* spacing below button */
+}
