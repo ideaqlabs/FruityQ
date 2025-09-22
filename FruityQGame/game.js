@@ -70,6 +70,15 @@ function initGame() {
 }
 
 function startGame() {
+  // Request fullscreen when game starts
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  } else if (canvas.webkitRequestFullscreen) { // Safari
+    canvas.webkitRequestFullscreen();
+  } else if (canvas.msRequestFullscreen) { // IE/Edge
+    canvas.msRequestFullscreen();
+  }
+
   document.getElementById("startScreen").classList.add("hidden");
   document.getElementById("gameOverScreen").classList.add("hidden");
   document.getElementById("gameUI").classList.remove("hidden");
@@ -78,7 +87,7 @@ function startGame() {
   gameInterval = requestAnimationFrame(gameLoop);
 
   timerInterval = setInterval(() => {
-    if(timeLeft > 0){
+    if (timeLeft > 0) {
       timeLeft--;
       document.getElementById("timer").textContent = "Time: " + timeLeft;
     } else {
