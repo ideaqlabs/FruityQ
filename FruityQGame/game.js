@@ -115,32 +115,36 @@ function update(){
   fruits.forEach(f => f.y += f.speed);
   bombs.forEach(b => b.y += b.speed);
 
-  // fruits collision
-  fruits = fruits.filter(f => {
-    if(f.y + f.size > basket.y &&
-       f.x + f.size/2 > basket.x &&
-       f.x < basket.x + basket.width){
-      score += 10;
-      coins += 1;
-      addEffect(f.x, f.y, "+10", "lime");
-      return false;
-    }
-    return f.y < canvas.height;
-  });
+// fruits collision
+fruits = fruits.filter(f => {
+  if (!f.caught &&
+      f.y + f.size > basket.y &&
+      f.x + f.size/2 > basket.x &&
+      f.x < basket.x + basket.width) {
+    f.caught = true; // mark as caught
+    score += 10;
+    coins += 1;
+    addEffect(f.x + f.size/2, f.y, "+10", "lime");
+    return false; // remove from array
+  }
+  return f.y < canvas.height;
+});
 
-  // bombs collision
-  bombs = bombs.filter(b => {
-    if(b.y + b.size > basket.y &&
-       b.x + b.size/2 > basket.x &&
-       b.x < basket.x + basket.width){
-      score = Math.max(0, score - 15);
-      coins = Math.max(0, coins - 5);
-      addEffect(b.x, b.y, "-15", "red");
-      basket.shake = 10; // trigger basket shake
-      return false;
-    }
-    return b.y < canvas.height;
-  });
+// bombs collision
+bombs = bombs.filter(b => {
+  if (!b.caught &&
+      b.y + b.size > basket.y &&
+      b.x + b.size/2 > basket.x &&
+      b.x < basket.x + basket.width) {
+    b.caught = true; // mark as hit
+    score = Math.max(0, score - 15);
+    coins = Math.max(0, coins - 5);
+    addEffect(b.x + b.size/2, b.y, "-15", "red");
+    basket.shake = 10; // trigger shake
+    return false; // remove
+  }
+  return b.y < canvas.height;
+});
 
   // update effects
   effects.forEach(e => {
