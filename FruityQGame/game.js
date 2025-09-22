@@ -40,13 +40,14 @@ function draw() {
 
   // Watermark (IdeaQLabs)
   ctx.save();
-  ctx.font = "bold 48px 'Gill Sans', sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
+  ctx.font = `${Math.floor(canvas.width / 10)}px "Gill Sans", sans-serif`; 
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% visibility
   ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
   ctx.restore();
 
-  // basket (with shake)
+  // basket
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
   ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
@@ -60,7 +61,7 @@ function draw() {
     ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
   });
 
-  // floating effects (+10, -15)
+  // floating effects
   ctx.font = "20px Poppins";
   ctx.textAlign = "center";
   effects.forEach(e => {
@@ -70,7 +71,6 @@ function draw() {
     ctx.globalAlpha = 1;
   });
 }
-
 
 const fruitTypes = ["apple","orange","lemon","watermelon","grapes","strawberry"];
 
