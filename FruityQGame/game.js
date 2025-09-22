@@ -43,7 +43,7 @@ ctx.save();
 
 // Dynamic font size = 12% of canvas width (adjustable)
 let fontSize = Math.floor(canvas.width * 0.12);
-ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
+ctx.font = `bold ${fontSize}10px "Gill Sans", Arial, sans-serif`;
 
 ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
 ctx.textAlign = "center";
