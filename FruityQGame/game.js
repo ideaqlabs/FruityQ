@@ -183,7 +183,7 @@ function draw() {
 
   // watermark
   ctx.save();
-  let fontSize = Math.floor(canvas.width * 0.18);
+  let fontSize = Math.floor(canvas.width * 0.15);
   ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
   ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
   ctx.textAlign = "center";
