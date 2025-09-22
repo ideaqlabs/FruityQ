@@ -35,47 +35,6 @@ function loadAssets(callback) {
   });
 }
 
-function draw() {
-  // fill background with very deep navy blue
-  ctx.fillStyle = "#000822"; // darker than screen bg
-  ctx.globalAlpha = 1;       // full opacity
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Watermark (IdeaQLabs) - behind game assets
-  ctx.save();
-  let fontSize = Math.floor(canvas.width * 0.18); // scale dynamically
-  ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
-  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
-  ctx.restore();
-
-  // basket (shake effect)
-  let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
-  ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
-
-  // fruits
-  fruits.forEach(f => {
-    ctx.drawImage(assets[f.type], f.x, f.y, f.size, f.size);
-  });
-
-  // bombs
-  bombs.forEach(b => {
-    ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
-  });
-
-  // effects (score popups)
-  ctx.font = "20px Poppins, Arial, sans-serif";
-  ctx.textAlign = "center";
-  effects.forEach(e => {
-    ctx.globalAlpha = e.alpha;
-    ctx.fillStyle = e.color;
-    ctx.fillText(e.text, e.x, e.y);
-    ctx.globalAlpha = 1;
-  });
-}
-
 const fruitTypes = ["apple","orange","lemon","watermelon","grapes","strawberry"];
 
 document.getElementById("startBtn").addEventListener("click", () => {
@@ -178,12 +137,11 @@ function update() {
     if (f.y + f.size > basket.y &&
         f.x + f.size/2 > basket.x &&
         f.x < basket.x + basket.width) {
-      // caught fruit → award points once
       score += 10;
       addEffect(f.x + f.size/2, f.y, "+10", "lime");
-      fruits.splice(i, 1); // remove immediately
+      fruits.splice(i, 1);
     } else if (f.y > canvas.height) {
-      fruits.splice(i, 1); // missed fruit
+      fruits.splice(i, 1);
     }
   }
 
@@ -193,11 +151,10 @@ function update() {
     if (b.y + b.size > basket.y &&
         b.x + b.size/2 > basket.x &&
         b.x < basket.x + basket.width) {
-      // bomb hit → deduct once
       score = Math.max(0, score - 40);
       addEffect(b.x + b.size/2, b.y, "-40", "red");
       basket.shake = 10;
-      bombs.splice(i, 1); // remove immediately
+      bombs.splice(i, 1);
     } else if (b.y > canvas.height) {
       bombs.splice(i, 1);
     }
@@ -214,14 +171,27 @@ function update() {
   });
   effects = effects.filter(e => e.lifetime > 0);
 
-  // basket shake
   if (basket.shake > 0) basket.shake--;
 }
 
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+// ✅ Corrected draw function
+function draw() {
+  // deep blue background
+  ctx.fillStyle = "#000822";
+  ctx.globalAlpha = 1;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // basket (shake effect)
+  // watermark
+  ctx.save();
+  let fontSize = Math.floor(canvas.width * 0.18);
+  ctx.font = `bold ${fontSize}px "Gill Sans", Arial, sans-serif`;
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
+  ctx.restore();
+
+  // basket
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
   ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
@@ -235,8 +205,8 @@ function draw(){
     ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
   });
 
-  // effects (score popups)
-  ctx.font = "20px Poppins";
+  // floating effects
+  ctx.font = "20px Poppins, Arial, sans-serif";
   ctx.textAlign = "center";
   effects.forEach(e => {
     ctx.globalAlpha = e.alpha;
