@@ -1,6 +1,22 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+function resizeCanvas() {
+  const isMobile = window.innerHeight > window.innerWidth; // portrait vs landscape
+
+  if (isMobile) {
+    // vertical setup (mobile)
+    canvas.width = Math.min(window.innerWidth * 0.95, 420);
+    canvas.height = Math.min(window.innerHeight * 0.9, 720);
+  } else {
+    // horizontal setup (desktop/tablet landscape)
+    canvas.width = Math.min(window.innerWidth * 0.95, 900);
+    canvas.height = Math.min(window.innerHeight * 0.9, 600);
+  }
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas(); // call at load
+
 let score, coins, timeLeft, basket, fruits, bombs, keys, gameInterval, timerInterval;
 const assets = {};
 let effects = []; // animations
@@ -18,6 +34,43 @@ function loadAssets(callback) {
     };
   });
 }
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Watermark (IdeaQLabs)
+  ctx.save();
+  ctx.font = "bold 48px 'Gill Sans', sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // 60% opacity
+  ctx.textAlign = "center";
+  ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
+  ctx.restore();
+
+  // basket (with shake)
+  let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
+  ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
+
+  // fruits
+  fruits.forEach(f => {
+    ctx.drawImage(assets[f.type], f.x, f.y, f.size, f.size);
+  });
+
+  // bombs
+  bombs.forEach(b => {
+    ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
+  });
+
+  // floating effects (+10, -15)
+  ctx.font = "20px Poppins";
+  ctx.textAlign = "center";
+  effects.forEach(e => {
+    ctx.globalAlpha = e.alpha;
+    ctx.fillStyle = e.color;
+    ctx.fillText(e.text, e.x, e.y);
+    ctx.globalAlpha = 1;
+  });
+}
+
 
 const fruitTypes = ["apple","orange","lemon","watermelon","grapes","strawberry"];
 
