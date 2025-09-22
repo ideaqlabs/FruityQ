@@ -210,8 +210,8 @@ function update() {
     }
   }
 
-  // recalc coins (0.5 per 100 points)
-  coins = Math.floor(score / 100) * 0.5;
+  // recalc coins (0.25 per 100 points)
+  coins = Math.floor(score / 100) * 0.25;
 
   // update effects
   effects.forEach(e => {
