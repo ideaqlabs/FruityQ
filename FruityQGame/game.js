@@ -108,48 +108,49 @@ function addEffect(x, y, text, color="white") {
   effects.push({ x, y, text, color, alpha: 1, lifetime: 60 }); // 60 frames ≈ 1s
 }
 
-function update(){
-  if(keys["ArrowLeft"] && basket.x > 0) basket.x -= basket.speed;
-  if(keys["ArrowRight"] && basket.x + basket.width < canvas.width) basket.x += basket.speed;
+function update() {
+  if (keys["ArrowLeft"] && basket.x > 0) basket.x -= basket.speed;
+  if (keys["ArrowRight"] && basket.x + basket.width < canvas.width) basket.x += basket.speed;
 
   fruits.forEach(f => f.y += f.speed);
   bombs.forEach(b => b.y += b.speed);
 
-// fruits collision
-fruits = fruits.filter(f => {
-  if (!f.caught &&
-      f.y + f.size > basket.y &&
-      f.x + f.size/2 > basket.x &&
-      f.x < basket.x + basket.width) {
-    f.caught = true; // mark as caught
-    score += 10;
-    coins += 1;
-    addEffect(f.x + f.size/2, f.y, "+10", "lime");
-    return false; // remove from array
-  }
-  return f.y < canvas.height;
-});
+  let fruitsToRemove = [];
+  let bombsToRemove = [];
 
-// bombs collision
-bombs = bombs.filter(b => {
-  if (!b.caught &&
-      b.y + b.size > basket.y &&
-      b.x + b.size/2 > basket.x &&
-      b.x < basket.x + basket.width) {
-    b.caught = true; // mark as hit
-    score = Math.max(0, score - 15);
-    coins = Math.max(0, coins - 5);
-    addEffect(b.x + b.size/2, b.y, "-15", "red");
-    basket.shake = 10; // trigger shake
-    return false; // remove
-  }
-  return b.y < canvas.height;
-});
+  // fruits collision
+  fruits.forEach((f, i) => {
+    if (f.y + f.size > basket.y &&
+        f.x + f.size/2 > basket.x &&
+        f.x < basket.x + basket.width) {
+      score += 10;
+      coins += 1;
+      addEffect(f.x + f.size/2, f.y, "+10", "lime");
+      fruitsToRemove.push(i);
+    }
+  });
+
+  // bombs collision
+  bombs.forEach((b, i) => {
+    if (b.y + b.size > basket.y &&
+        b.x + b.size/2 > basket.x &&
+        b.x < basket.x + basket.width) {
+      score = Math.max(0, score - 15);
+      coins = Math.max(0, coins - 5);
+      addEffect(b.x + b.size/2, b.y, "-15", "red");
+      basket.shake = 10;
+      bombsToRemove.push(i);
+    }
+  });
+
+  // remove caught fruits/bombs
+  fruits = fruits.filter((_, i) => !fruitsToRemove.includes(i) && _.y < canvas.height);
+  bombs  = bombs.filter((_, i) => !bombsToRemove.includes(i) && _.y < canvas.height);
 
   // update effects
   effects.forEach(e => {
-    e.y -= 0.5;        // float upward
-    e.alpha -= 0.02;   // fade out
+    e.y -= 0.5;
+    e.alpha -= 0.02;
     e.lifetime--;
   });
   effects = effects.filter(e => e.lifetime > 0);
