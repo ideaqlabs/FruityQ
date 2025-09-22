@@ -99,6 +99,12 @@ function startGame() {
   setInterval(spawnBomb, 5000);
 }
 
+// Re-adjust when exiting fullscreen
+document.addEventListener("fullscreenchange", resizeCanvas);
+document.addEventListener("webkitfullscreenchange", resizeCanvas);
+document.addEventListener("msfullscreenchange", resizeCanvas);
+
+
 function endGame() {
   cancelAnimationFrame(gameInterval);
   clearInterval(timerInterval);
