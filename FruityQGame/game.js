@@ -137,8 +137,8 @@ function update() {
         b.x + b.size/2 > basket.x &&
         b.x < basket.x + basket.width) {
       // bomb hit → deduct once
-      score = Math.max(0, score - 15);
-      addEffect(b.x + b.size/2, b.y, "-15", "red");
+      score = Math.max(0, score - 20);
+      addEffect(b.x + b.size/2, b.y, "-20", "red");
       basket.shake = 10;
       bombs.splice(i, 1); // remove immediately
     } else if (b.y > canvas.height) {
@@ -146,8 +146,8 @@ function update() {
     }
   }
 
-  // recalc coins (1 per 150 points)
-  coins = Math.floor(score / 150);
+  // recalc coins (0.5 per 100 points)
+  coins = Math.floor(score / 100) * 0.5;
 
   // update effects
   effects.forEach(e => {
