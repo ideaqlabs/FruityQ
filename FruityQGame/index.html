@@ -9,26 +9,26 @@
 </head>
 <body>
   <div id="gameContainer">
-
-    <!-- Start Screen -->
+    
+    <!-- START SCREEN -->
     <div id="startScreen">
       <h1>🍉 FruityQ 🍎</h1>
       <button id="startBtn">Start Game</button>
-      <div class="intro-watermark">IdeaQLabs</div>  
+      <div class="intro-watermark">IdeaQLabs</div>
     </div>
 
-    <!-- HUD -->
+    <!-- GAME UI (hidden at start) -->
     <div id="gameUI" class="hidden">
       <div id="hud">
         <span id="score">Score: 0</span>
         <span id="timer">Time: 60</span>
         <span id="coins">Coins: 0</span>
       </div>
-      <canvas id="gameCanvas"></canvas>
+      <canvas id="gameCanvas" width="800" height="500"></canvas>
     </div>
 
-    <!-- Game Over Screen -->
-    <div id="gameOverScreen" class="hidden">
+    <!-- GAME OVER (hidden at start) -->
+    <div id="gameOverScreen">
       <div class="overlay">
         <h2>Game Over!</h2>
         <p id="finalScore"></p>
