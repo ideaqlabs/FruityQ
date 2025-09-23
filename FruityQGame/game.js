@@ -1,12 +1,3 @@
-/* --- game.js (fixed) --- */
-/* Assumes your index.html contains:
-   <div id="gameContainer" class="hidden">
-     <div id="gameUI" class="hidden"> ... </div>
-     <canvas id="gameCanvas"></canvas>
-   </div>
-   and a start button with id="startBtn"
-*/
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -35,10 +26,8 @@ function resizeCanvas() {
     canvas.height = Math.min(rect.height * 0.9, 600);
   }
 
-  // adjust CSS display size to match logical size (keeps canvas crisp)
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
 }
+
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("orientationchange", resizeCanvas);
 resizeCanvas(); // initial
