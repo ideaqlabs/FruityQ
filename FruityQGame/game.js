@@ -176,23 +176,23 @@ function startGame() {
 
 function endGame() {
   cancelAnimationFrame(gameInterval);
+  gameInterval = null;  // prevent hanging loop
+
   if (spawnFruitIntervalId) { clearInterval(spawnFruitIntervalId); spawnFruitIntervalId = null; }
   if (spawnBombIntervalId)  { clearInterval(spawnBombIntervalId);  spawnBombIntervalId  = null; }
   if (timerIntervalId)      { clearInterval(timerIntervalId);      timerIntervalId      = null; }
 
-  const gameUI = document.getElementById("gameUI");
-  if (gameUI) gameUI.classList.add("hidden");
+  document.getElementById("gameUI").classList.add("hidden");
   const gameOver = document.getElementById("gameOverScreen");
   if (gameOver) {
     gameOver.classList.remove("hidden");
-    const fs = document.getElementById("finalScore");
-    if (fs) fs.textContent = `Final Score: ${score}, Coins: ${coins}`;
+    document.getElementById("finalScore").textContent = `Final Score: ${score}, Coins: ${coins}`;
   }
 
-  // re-enable start button so user can play again
   const startBtn = document.getElementById("startBtn");
   if (startBtn) startBtn.disabled = false;
 }
+
 
 /* --- Spawning --- */
 function spawnFruit(){
