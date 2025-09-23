@@ -82,7 +82,7 @@ body, html {
   z-index: 2000;
 }
 
-/* ✅ Game Over Screen */
+/* Game Over Screen */
 #gameOverScreen {
   position: fixed;
   top: 0;
@@ -92,7 +92,7 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0,0,0,0.75); /* dark transparent overlay */
+  background: rgba(0,0,0,0.75); /* dark overlay */
   z-index: 9999;
 }
 
@@ -112,7 +112,7 @@ body, html {
 #gameOverScreen h2 {
   font-size: 3rem;
   margin-bottom: 20px;
-  color: #ff4757; /* red accent */
+  color: #ff4757;
 }
 
 #gameOverScreen p {
