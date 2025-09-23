@@ -8,8 +8,15 @@ let timerIntervalId = null;
 let gameInterval = null;
 
 function resizeCanvas() {
-  const rect = { width: window.innerWidth, height: window.innerHeight };
-  const isMobile = rect.height > rect.width; // portrait vs landscape
+  const container = document.getElementById("gameContainer");
+  let rect = { width: window.innerWidth, height: window.innerHeight };
+
+  if (container) {
+    const r = container.getBoundingClientRect();
+    if (r.width > 10 && r.height > 10) rect = r;
+  }
+
+  const isMobile = rect.height > rect.width;
 
   if (isMobile) {
     canvas.width = Math.min(rect.width * 0.95, 420);
@@ -18,6 +25,7 @@ function resizeCanvas() {
     canvas.width = Math.min(rect.width * 0.95, 900);
     canvas.height = Math.min(rect.height * 0.9, 600);
   }
+}
 
   // also scale HUD width with canvas
   const hud = document.getElementById("hud");
