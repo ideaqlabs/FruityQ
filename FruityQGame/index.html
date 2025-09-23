@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FruityQ</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="gameContainer">
-    
-    <!-- START SCREEN -->
-    <div id="startScreen">
-      <h1>🍉 FruityQ 🍎</h1>
-      <button id="startBtn">Start Game</button>
-      <div class="intro-watermark">IdeaQLabs</div>
-    </div>
-
-    <!-- GAME UI (hidden at start) -->
+  <!-- Game Container: this is what we requestFullscreen() on -->
+  <div id="gameContainer" class="hidden">
+    <!-- HUD (visible only during play) -->
     <div id="gameUI" class="hidden">
       <div id="hud">
         <span id="score">Score: 0</span>
         <span id="timer">Time: 60</span>
         <span id="coins">Coins: 0</span>
       </div>
-      <canvas id="gameCanvas" width="800" height="500"></canvas>
-    </div>
 
-    <!-- GAME OVER (hidden at start) -->
-    <div id="gameOverScreen">
-      <div class="overlay">
-        <h2>Game Over!</h2>
-        <p id="finalScore"></p>
-        <button onclick="restartGame()">Play Again</button>
+      <!-- Canvas wrapper centers the canvas -->
+      <div id="canvasWrapper">
+        <canvas id="gameCanvas"></canvas>
       </div>
     </div>
 
+    <!-- Game Over overlay (inside container so it shows in fullscreen) -->
+    <div id="gameOverScreen" class="hidden">
+      <div class="overlay">
+        <h2>Game Over!</h2>
+        <p id="finalScore">Final Score: 0</p>
+        <button id="playAgainBtn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start screen (shown on load) -->
+  <div id="startScreen">
+    <h1>🍉 FruityQ 🍎</h1>
+    <button id="startBtn">Start Game</button>
+    <div class="intro-watermark">IdeaQLabs</div>
   </div>
 
   <script src="game.js"></script>
