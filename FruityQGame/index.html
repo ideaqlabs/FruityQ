@@ -8,25 +8,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Start Screen -->
   <div id="startScreen">
     <h1>🍉 FruityQ 🍎</h1>
     <button id="startBtn">Start Game</button>
-    <!-- Intro watermark below start button -->
     <div class="intro-watermark">IdeaQLabs</div>  
   </div>
 
-  <!-- Game Container (fullscreen applies here so HUD + canvas stay together) -->
+  <!-- ✅ Wrap everything in gameContainer -->
   <div id="gameContainer" class="hidden">
     <div id="gameUI">
-      <span id="score">Score: 0</span>
-      <span id="timer">Time: 60</span>
-      <span id="coins">Coins: 0</span>
+      <div id="hud">
+        <span id="score">Score: 0</span>
+        <span id="timer">Time: 60</span>
+        <span id="coins">Coins: 0</span>
+      </div>
+      <canvas id="gameCanvas" width="800" height="500"></canvas>
     </div>
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
   </div>
 
-  <!-- Game Over Screen -->
   <div id="gameOverScreen" class="hidden">
     <h2>Game Over!</h2>
     <p id="finalScore"></p>
