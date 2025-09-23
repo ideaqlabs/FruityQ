@@ -70,13 +70,15 @@ function initGame() {
 }
 
 function startGame() {
-  // Request fullscreen when game starts
-  if (canvas.requestFullscreen) {
-    canvas.requestFullscreen();
-  } else if (canvas.webkitRequestFullscreen) { // Safari
-    canvas.webkitRequestFullscreen();
-  } else if (canvas.msRequestFullscreen) { // IE/Edge
-    canvas.msRequestFullscreen();
+  const gameContainer = document.getElementById("gameContainer");
+
+  // Request fullscreen for the whole container (UI + canvas)
+  if (gameContainer.requestFullscreen) {
+    gameContainer.requestFullscreen();
+  } else if (gameContainer.webkitRequestFullscreen) {
+    gameContainer.webkitRequestFullscreen();
+  } else if (gameContainer.msRequestFullscreen) {
+    gameContainer.msRequestFullscreen();
   }
 
   document.getElementById("startScreen").classList.add("hidden");
