@@ -125,3 +125,7 @@ html, body {
 #gameOverScreen button:hover {
   background: #e84118;
 }
+
+.hidden {
+  display: none !important;
+}
