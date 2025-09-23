@@ -212,15 +212,23 @@ function draw() {
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
   ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
-  // fruits
-  fruits.forEach(f => {
-    ctx.drawImage(assets[f.type], f.x, f.y, f.size, f.size);
-  });
+// fruits
+fruits.forEach(f => {
+  ctx.save();
+  ctx.translate(f.x + f.size/2, f.y + f.size/2);
+  ctx.rotate(f.angle);
+  ctx.drawImage(assets[f.type], -f.size/2, -f.size/2, f.size, f.size);
+  ctx.restore();
+});
 
-  // bombs
-  bombs.forEach(b => {
-    ctx.drawImage(assets.bomb, b.x, b.y, b.size, b.size);
-  });
+// bombs
+bombs.forEach(b => {
+  ctx.save();
+  ctx.translate(b.x + b.size/2, b.y + b.size/2);
+  ctx.rotate(b.angle);
+  ctx.drawImage(assets.bomb, -b.size/2, -b.size/2, b.size, b.size);
+  ctx.restore();
+});
 
   // floating effects
   ctx.font = "20px Poppins, Arial, sans-serif";
