@@ -148,8 +148,13 @@ function endGame() {
   if (timerIntervalId)      { clearInterval(timerIntervalId);      timerIntervalId      = null; }
 
   document.getElementById("gameUI").classList.add("hidden");
-  document.getElementById("gameOverScreen").classList.remove("hidden");
+
+  const gameOver = document.getElementById("gameOverScreen");
+  gameOver.classList.add("active");
   document.getElementById("finalScore").textContent = `Final Score: ${score}, Coins: ${coins}`;
+
+  const startBtn = document.getElementById("startBtn");
+  if (startBtn) startBtn.disabled = false;
 }
 
 /* --- Spawning --- */
