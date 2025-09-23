@@ -8,15 +8,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Start screen -->
-  <div id="startScreen">
-    <h1>🍉 FruityQ 🍎</h1>
-    <button id="startBtn">Start Game</button>
-    <div class="intro-watermark">IdeaQLabs</div>  
-  </div>
+  <div id="gameContainer">
 
-  <!-- Game container -->
-  <div id="gameContainer" class="hidden">
+    <!-- Start Screen -->
+    <div id="startScreen">
+      <h1>🍉 FruityQ 🍎</h1>
+      <button id="startBtn">Start Game</button>
+      <div class="intro-watermark">IdeaQLabs</div>  
+    </div>
+
+    <!-- HUD -->
     <div id="gameUI" class="hidden">
       <div id="hud">
         <span id="score">Score: 0</span>
@@ -25,15 +26,16 @@
       </div>
       <canvas id="gameCanvas"></canvas>
     </div>
-  </div>
 
-  <!-- Game over screen -->
-  <div id="gameOverScreen" class="hidden">
-    <div class="overlay">
-      <h2>Game Over!</h2>
-      <p id="finalScore"></p>
-      <button onclick="startGame()">Play Again</button>
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="hidden">
+      <div class="overlay">
+        <h2>Game Over!</h2>
+        <p id="finalScore"></p>
+        <button onclick="restartGame()">Play Again</button>
+      </div>
     </div>
+
   </div>
 
   <script src="game.js"></script>
