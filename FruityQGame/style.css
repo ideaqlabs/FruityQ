@@ -74,3 +74,21 @@ canvas {
   margin: 0 auto;  /* center horizontally */
   background: #000822; /* fallback */
 }
+
+#gameOverScreen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.7);
+  flex-direction: column;
+  z-index: 10;
+}
+
+#gameOverScreen button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+}
