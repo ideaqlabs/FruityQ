@@ -2,16 +2,17 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas() {
-  const isMobile = window.innerHeight > window.innerWidth; // portrait vs landscape
+  const container = document.getElementById("gameContainer");
+  const rect = container.getBoundingClientRect();
+
+  const isMobile = rect.height > rect.width; // portrait vs landscape
 
   if (isMobile) {
-    // vertical setup (mobile)
-    canvas.width = Math.min(window.innerWidth * 0.95, 420);
-    canvas.height = Math.min(window.innerHeight * 0.9, 720);
+    canvas.width = Math.min(rect.width * 0.95, 420);
+    canvas.height = Math.min(rect.height * 0.9, 720);
   } else {
-    // horizontal setup (desktop/tablet landscape)
-    canvas.width = Math.min(window.innerWidth * 0.95, 900);
-    canvas.height = Math.min(window.innerHeight * 0.9, 600);
+    canvas.width = Math.min(rect.width * 0.95, 900);
+    canvas.height = Math.min(rect.height * 0.9, 600);
   }
 }
 window.addEventListener("resize", resizeCanvas);
@@ -19,7 +20,8 @@ resizeCanvas(); // call at load
 
 let score, coins, timeLeft, basket, fruits, bombs, keys, gameInterval, timerInterval;
 const assets = {};
-let effects = []; // animations
+let effects = [];
+let touchTargetX = null; // for smooth slider movement
 
 // preload assets
 function loadAssets(callback) {
@@ -51,11 +53,11 @@ canvas.addEventListener("mousemove", e => {
   basket.x = mouseX - basket.width/2;
 });
 
+// touch controls → slider, not teleport
 canvas.addEventListener("touchmove", e => {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
-  const touchX = e.touches[0].clientX - rect.left;
-  basket.x = touchX - basket.width/2;
+  touchTargetX = e.touches[0].clientX - rect.left - basket.width / 2;
 }, { passive: false });
 
 function initGame() {
@@ -67,6 +69,7 @@ function initGame() {
   keys = {};
   effects = [];
   basket = { x: canvas.width/2 - 50, y: canvas.height - 60, width: 100, height: 60, speed: 7, shake: 0 };
+  touchTargetX = basket.x;
 }
 
 function startGame() {
@@ -86,6 +89,7 @@ function startGame() {
   document.getElementById("gameUI").classList.remove("hidden");
 
   initGame();
+  resizeCanvas(); // adjust after fullscreen
   gameInterval = requestAnimationFrame(gameLoop);
 
   timerInterval = setInterval(() => {
@@ -101,11 +105,10 @@ function startGame() {
   setInterval(spawnBomb, 5000);
 }
 
-// Re-adjust when exiting fullscreen
+// Re-adjust when entering/exiting fullscreen
 document.addEventListener("fullscreenchange", resizeCanvas);
 document.addEventListener("webkitfullscreenchange", resizeCanvas);
 document.addEventListener("msfullscreenchange", resizeCanvas);
-
 
 function endGame() {
   cancelAnimationFrame(gameInterval);
@@ -123,7 +126,9 @@ function spawnFruit(){
     y: -50,
     size: 50,
     speed: 2 + Math.random()*2,
-    type: fruitTypes[Math.floor(Math.random()*fruitTypes.length)]
+    type: fruitTypes[Math.floor(Math.random()*fruitTypes.length)],
+    angle: 0,
+    rotationSpeed: (Math.random() - 0.5) * 0.02 // slow rotation
   });
 }
 
@@ -133,6 +138,8 @@ function spawnBomb(){
     y: -50,
     size: 50,
     speed: 2.5 + Math.random()*2,
+    angle: 0,
+    rotationSpeed: (Math.random() - 0.5) * 0.02
   });
 }
 
@@ -145,8 +152,19 @@ function update() {
   if (keys["ArrowLeft"] && basket.x > 0) basket.x -= basket.speed;
   if (keys["ArrowRight"] && basket.x + basket.width < canvas.width) basket.x += basket.speed;
 
-  fruits.forEach(f => f.y += f.speed);
-  bombs.forEach(b => b.y += b.speed);
+  // smooth touch slide
+  if (touchTargetX !== null) {
+    basket.x += (touchTargetX - basket.x) * 0.2; // lerp smoothing
+  }
+
+  fruits.forEach(f => {
+    f.y += f.speed;
+    f.angle += f.rotationSpeed;
+  });
+  bombs.forEach(b => {
+    b.y += b.speed;
+    b.angle += b.rotationSpeed;
+  });
 
   // handle fruits
   for (let i = fruits.length - 1; i >= 0; i--) {
@@ -177,7 +195,6 @@ function update() {
     }
   }
 
-  // recalc coins (0.25 per 100 points)
   coins = Math.floor(score / 100) * 0.25;
 
   // update effects
@@ -191,10 +208,9 @@ function update() {
   if (basket.shake > 0) basket.shake--;
 }
 
-// ✅ Corrected draw function
+// ✅ draw function
 function draw() {
-  // deep blue background
-  ctx.fillStyle = "#000822";
+  ctx.fillStyle = "#000822"; // deep blue
   ctx.globalAlpha = 1;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -212,23 +228,23 @@ function draw() {
   let shakeX = basket.shake ? (Math.random() - 0.5) * 10 : 0;
   ctx.drawImage(assets.basket, basket.x + shakeX, basket.y, basket.width, basket.height);
 
-// fruits
-fruits.forEach(f => {
-  ctx.save();
-  ctx.translate(f.x + f.size/2, f.y + f.size/2);
-  ctx.rotate(f.angle);
-  ctx.drawImage(assets[f.type], -f.size/2, -f.size/2, f.size, f.size);
-  ctx.restore();
-});
+  // fruits
+  fruits.forEach(f => {
+    ctx.save();
+    ctx.translate(f.x + f.size/2, f.y + f.size/2);
+    ctx.rotate(f.angle);
+    ctx.drawImage(assets[f.type], -f.size/2, -f.size/2, f.size, f.size);
+    ctx.restore();
+  });
 
-// bombs
-bombs.forEach(b => {
-  ctx.save();
-  ctx.translate(b.x + b.size/2, b.y + b.size/2);
-  ctx.rotate(b.angle);
-  ctx.drawImage(assets.bomb, -b.size/2, -b.size/2, b.size, b.size);
-  ctx.restore();
-});
+  // bombs
+  bombs.forEach(b => {
+    ctx.save();
+    ctx.translate(b.x + b.size/2, b.y + b.size/2);
+    ctx.rotate(b.angle);
+    ctx.drawImage(assets.bomb, -b.size/2, -b.size/2, b.size, b.size);
+    ctx.restore();
+  });
 
   // floating effects
   ctx.font = "20px Poppins, Arial, sans-serif";
