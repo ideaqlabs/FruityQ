@@ -21,7 +21,8 @@
 
   // game state
   let score = 0;
-  let coins = 0;
+  let sessionCoins = 0;      // coins earned this session
+  let totalCoins = 0;        // persistent coins across sessions
   let timeLeft = 60;
   let basket = null;
   let fruits = [];
@@ -36,25 +37,51 @@
   let gamePaused = false;
   let lastTime = performance.now();
 
-  // Pause when tab/app is hidden
-  document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    pauseGame();
-  } else {
-    resumeGame();
+  // ---------- Pause / Resume helpers ----------
+  function pauseGame() {
+    gamePaused = true;
+
+    // stop spawning and timer while paused
+    if (spawnFruitInterval) { clearInterval(spawnFruitInterval); spawnFruitInterval = null; }
+    if (spawnBombInterval)  { clearInterval(spawnBombInterval);  spawnBombInterval  = null; }
+    if (timerInterval)      { clearInterval(timerInterval);      timerInterval      = null; }
+
+    // keep RAF running (it will skip updates), or you could cancelAnimationFrame - we keep it for smooth resume
   }
-});
 
-window.addEventListener("blur", pauseGame);
-window.addEventListener("focus", resumeGame);
-
-
-  // Extra safety: focus/blur
-  window.addEventListener("blur", () => gamePaused = true);
-  window.addEventListener("focus", () => {
+  function resumeGame() {
+    if (!gamePaused) return;
     gamePaused = false;
     lastTime = performance.now();
+
+    // restart spawn intervals if game running
+    if (!spawnFruitInterval) spawnFruitInterval = setInterval(spawnFruit, 1400);
+    if (!spawnBombInterval)  spawnBombInterval  = setInterval(spawnBomb, 5000);
+
+    // resume timer if time remains
+    if (!timerInterval && timeLeft > 0) {
+      timerInterval = setInterval(() => {
+        if (!gamePaused) {
+          if (timeLeft > 0) {
+            timeLeft--;
+            const tEl = document.getElementById("timer");
+            if (tEl) tEl.textContent = "Time: " + timeLeft;
+          } else {
+            endGame();
+          }
+        }
+      }, 1000);
+    }
+  }
+
+  // Page visibility & focus/blur to pause/resume
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) pauseGame();
+    else resumeGame();
   });
+
+  window.addEventListener("blur", pauseGame);
+  window.addEventListener("focus", resumeGame);
 
   // Resize canvas to fit container or window; maintain sensible sizes
   function resizeCanvas() {
@@ -139,12 +166,17 @@ window.addEventListener("focus", resumeGame);
 
   /* ---------- Game lifecycle ---------- */
   function initGameState() {
-    score = 0; coins = 0; timeLeft = 60;
+    score = 0;
+    sessionCoins = 0;
+    timeLeft = 60;
     fruits = []; bombs = []; effects = [];
     touchTargetX = null;
     keys = {};
 
-      // set basket size relative to canvas
+    // Load persistent coins once (total lifetime coins)
+    totalCoins = parseInt(localStorage.getItem("playerCoins") || "0", 10);
+
+    // set basket size relative to canvas
     const bw = Math.max(80, Math.floor(canvas.width * 0.18));
     const bh = Math.max(40, Math.floor(canvas.height * 0.11));
     basket = {
@@ -158,6 +190,14 @@ window.addEventListener("focus", resumeGame);
 
     // ensure HUD matches canvas width
     if (hud) hud.style.width = canvas.width + "px";
+
+    // update HUD displays immediately
+    const scoreEl = document.getElementById("score");
+    const coinsEl = document.getElementById("coins");
+    const tEl = document.getElementById("timer");
+    if (scoreEl) scoreEl.textContent = "Score: " + score;
+    if (coinsEl) coinsEl.textContent = "Coins: " + totalCoins;
+    if (tEl) tEl.textContent = "Time: " + timeLeft;
   }
 
   function startGameLoop() {
@@ -172,12 +212,14 @@ window.addEventListener("focus", resumeGame);
 
     // timer
     timerInterval = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
-        const tEl = document.getElementById("timer");
-        if (tEl) tEl.textContent = "Time: " + timeLeft;
-      } else {
-        endGame();
+      if (!gamePaused) {
+        if (timeLeft > 0) {
+          timeLeft--;
+          const tEl = document.getElementById("timer");
+          if (tEl) tEl.textContent = "Time: " + timeLeft;
+        } else {
+          endGame();
+        }
       }
     }, 1000);
 
@@ -207,11 +249,20 @@ window.addEventListener("focus", resumeGame);
     stopGameLoop();
     // hide game UI
     if (gameUI) gameUI.classList.add("hidden");
-    
+
+    // Save coins to localStorage (accumulate session coins into total)
+    totalCoins = (totalCoins || 0) + (sessionCoins || 0);
+    try {
+      localStorage.setItem("playerCoins", totalCoins);
+    } catch (err) {
+      // localStorage might fail in private mode; ignore but don't crash
+      console.warn("Failed to save playerCoins:", err);
+    }
+
     // show overlay inside container (works in fullscreen)
     if (gameOverScreen) {
       gameOverScreen.classList.remove("hidden");
-      finalScoreEl.textContent = `Final Score: ${score}, Coins: ${coins}`;
+      finalScoreEl.textContent = `Final Score: ${score}, Coins this game: ${sessionCoins}, Total Coins: ${totalCoins}`;
     }
   }
 
@@ -244,43 +295,29 @@ window.addEventListener("focus", resumeGame);
     });
   }
 
-  function pauseGame() {
-  gamePaused = true;
-  if (spawnFruitInterval) { clearInterval(spawnFruitInterval); spawnFruitInterval = null; }
-  if (spawnBombInterval) { clearInterval(spawnBombInterval); spawnBombInterval = null; }
-}
-
-function resumeGame() {
-  gamePaused = false;
-  lastTime = performance.now();
-
-  // restart spawn intervals
-  if (!spawnFruitInterval) spawnFruitInterval = setInterval(spawnFruit, 1400);
-  if (!spawnBombInterval) spawnBombInterval = setInterval(spawnBomb, 5000);
-}
-
   /* ---------- Visual effects ---------- */
   function addEffect(x, y, text, color = "white") {
     effects.push({ x, y, text, color, alpha: 1, lifetime: 60 });
   }
 
   /* ---------- Update & Draw ---------- */
-  function update() {
-    // keyboard
-    if (keys["ArrowLeft"] || keys["a"]) basket.x -= basket.speed;
-    if (keys["ArrowRight"] || keys["d"]) basket.x += basket.speed;
+  // update uses a delta multiplier (1 = ~16.67ms baseline)
+  function update(delta = 1) {
+    // keyboard (scaled by delta)
+    if (keys["ArrowLeft"] || keys["a"]) basket.x -= basket.speed * delta;
+    if (keys["ArrowRight"] || keys["d"]) basket.x += basket.speed * delta;
 
-    // touch smoothing
+    // touch smoothing (scale movement)
     if (touchTargetX !== null) {
-      basket.x += (touchTargetX - basket.x) * 0.18;
+      basket.x += (touchTargetX - basket.x) * 0.18 * delta;
     }
 
     // clamp basket
     basket.x = Math.max(0, Math.min(canvas.width - basket.width, basket.x));
 
-    // update falling + rotation
-    for (const f of fruits) { f.y += f.speed; f.angle += f.rotationSpeed; }
-    for (const b of bombs)  { b.y += b.speed;  b.angle += b.rotationSpeed; }
+    // update falling + rotation (scale by delta)
+    for (const f of fruits) { f.y += f.speed * delta; f.angle += f.rotationSpeed * delta; }
+    for (const b of bombs)  { b.y += b.speed * delta;  b.angle += b.rotationSpeed * delta; }
 
     // collisions (reverse loops)
     for (let i = fruits.length - 1; i >= 0; i--) {
@@ -289,6 +326,8 @@ function resumeGame() {
           f.x + f.size/2 > basket.x &&
           f.x < basket.x + basket.width) {
         score += 10;
+        // award session coin(s) — adjust ratio here if you prefer
+        sessionCoins += 1;
         addEffect(f.x + f.size/2, f.y, "+10", "lime");
         fruits.splice(i, 1);
       } else if (f.y > canvas.height + 80) {
@@ -310,14 +349,15 @@ function resumeGame() {
       }
     }
 
-    // coins (0.25 per 100 points as before)
-    coins = Math.floor(score / 100) * 0.25;
-
-    // update effects
-    for (const e of effects) { e.y -= 0.6; e.alpha -= 0.02; e.lifetime--; }
+    // update effects (scale by delta)
+    for (const e of effects) {
+      e.y -= 0.6 * delta;
+      e.alpha -= 0.02 * delta;
+      e.lifetime -= Math.ceil(1 * delta);
+    }
     effects = effects.filter(e => e.lifetime > 0);
 
-    if (basket.shake > 0) basket.shake--;
+    if (basket.shake > 0) basket.shake = Math.max(0, basket.shake - Math.ceil(1 * delta));
   }
 
   function draw() {
@@ -346,45 +386,45 @@ function resumeGame() {
     }
 
     // detect mobile device once
-const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-// draw fruits (rotated)
-for (const f of fruits) {
-  ctx.save();
-  ctx.translate(f.x + f.size/2, f.y + f.size/2);
-  ctx.rotate(f.angle);
+    // draw fruits (rotated)
+    for (const f of fruits) {
+      ctx.save();
+      ctx.translate(f.x + f.size/2, f.y + f.size/2);
+      ctx.rotate(f.angle);
 
-  // increase size by 10% if on mobile
-  const fruitSize = isMobile ? f.size * 1.1 : f.size;
+      // increase size by 10% if on mobile
+      const fruitSize = isMobile ? f.size * 1.1 : f.size;
 
-  if (assets[f.type]) {
-    ctx.drawImage(assets[f.type], -fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
-  } else {
-    ctx.fillStyle = "#FF6B6B";
-    ctx.fillRect(-fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
-  }
+      if (assets[f.type]) {
+        ctx.drawImage(assets[f.type], -fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
+      } else {
+        ctx.fillStyle = "#FF6B6B";
+        ctx.fillRect(-fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
+      }
 
-  ctx.restore();
-}
+      ctx.restore();
+    }
 
-// draw bombs (rotated)
-for (const b of bombs) {
-  ctx.save();
-  ctx.translate(b.x + b.size/2, b.y + b.size/2);
-  ctx.rotate(b.angle);
+    // draw bombs (rotated)
+    for (const b of bombs) {
+      ctx.save();
+      ctx.translate(b.x + b.size/2, b.y + b.size/2);
+      ctx.rotate(b.angle);
 
-  // increase size by 10% if on mobile
-  const bombSize = isMobile ? b.size * 1.1 : b.size;
+      // increase size by 10% if on mobile
+      const bombSize = isMobile ? b.size * 1.1 : b.size;
 
-  if (assets.bomb) {
-    ctx.drawImage(assets.bomb, -bombSize/2, -bombSize/2, bombSize, bombSize);
-  } else {
-    ctx.fillStyle = "#333";
-    ctx.fillRect(-bombSize/2, -bombSize/2, bombSize, bombSize);
-  }
+      if (assets.bomb) {
+        ctx.drawImage(assets.bomb, -bombSize/2, -bombSize/2, bombSize, bombSize);
+      } else {
+        ctx.fillStyle = "#333";
+        ctx.fillRect(-bombSize/2, -bombSize/2, bombSize, bombSize);
+      }
 
-  ctx.restore();
-}
+      ctx.restore();
+    }
 
     // floating effects
     ctx.font = "20px Poppins, Arial, sans-serif";
@@ -397,53 +437,63 @@ for (const b of bombs) {
     }
   }
 
+  // delta-based game loop (timestamp provided by rAF)
   function gameLoop(timestamp) {
-  if (!gamePaused) {
-    let delta = timestamp - lastTime;
-    lastTime = timestamp;
+    if (!lastTime) lastTime = timestamp;
+    if (!gamePaused) {
+      let deltaMs = timestamp - lastTime;
+      // clamp delta between reasonable bounds to avoid huge jumps
+      deltaMs = Math.min(200, Math.max(0, deltaMs));
+      lastTime = timestamp;
 
-    // normalize delta so speed stays consistent (~16.67ms at 60fps baseline)
-    update(delta / 16.67);
-    draw();
+      const delta = deltaMs / 16.67; // 1 ~= 60fps baseline
 
-    const scoreEl = document.getElementById("score");
-    const coinsEl = document.getElementById("coins");
-    if (scoreEl) scoreEl.textContent = "Score: " + score;
-    if (coinsEl) coinsEl.textContent = "Coins: " + coins;
-  } else {
-    lastTime = timestamp; // reset timer so no jump on resume
+      update(delta);
+      draw();
+
+      // update HUD elements
+      const scoreEl = document.getElementById("score");
+      const coinsEl = document.getElementById("coins");
+      if (scoreEl) scoreEl.textContent = "Score: " + score;
+      if (coinsEl) coinsEl.textContent = "Coins: " + totalCoins;
+    } else {
+      // keep lastTime fresh so we don't get a huge delta on resume
+      lastTime = timestamp;
+    }
+
+    rafId = requestAnimationFrame(gameLoop);
   }
-
-  rafId = requestAnimationFrame(gameLoop);
-}
-
 
   /* ---------- Hooks ---------- */
   // Start button: hide start screen, show container, request fullscreen, load assets & start
-  startBtn.addEventListener("click", () => {
-    // hide start overlay and show container (immediately)
-    if (startScreen) startScreen.classList.add("hidden");
-    if (gameContainer) gameContainer.classList.remove("hidden");
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      // hide start overlay and show container (immediately)
+      if (startScreen) startScreen.classList.add("hidden");
+      if (gameContainer) gameContainer.classList.remove("hidden");
 
-    // request fullscreen on the game container (user gesture)
-    try {
-      if (gameContainer.requestFullscreen) gameContainer.requestFullscreen();
-      else if (gameContainer.webkitRequestFullscreen) gameContainer.webkitRequestFullscreen();
-      else if (gameContainer.msRequestFullscreen) gameContainer.msRequestFullscreen();
-    } catch (err) {
-      console.warn("Fullscreen request blocked:", err);
-    }
+      // request fullscreen on the game container (user gesture)
+      try {
+        if (gameContainer.requestFullscreen) gameContainer.requestFullscreen();
+        else if (gameContainer.webkitRequestFullscreen) gameContainer.webkitRequestFullscreen();
+        else if (gameContainer.msRequestFullscreen) gameContainer.msRequestFullscreen();
+      } catch (err) {
+        console.warn("Fullscreen request blocked:", err);
+      }
 
-    // ensure canvas sizing is correct then load assets
-    resizeCanvas();
-    loadAssets(() => { startGame(); });
-  });
+      // ensure canvas sizing is correct then load assets
+      resizeCanvas();
+      loadAssets(() => { startGame(); });
+    });
+  }
 
   // Play Again button
-  playAgainBtn.addEventListener("click", () => {
-    if (gameOverScreen) gameOverScreen.classList.add("hidden");
-    startGame();
-  });
+  if (playAgainBtn) {
+    playAgainBtn.addEventListener("click", () => {
+      if (gameOverScreen) gameOverScreen.classList.add("hidden");
+      startGame();
+    });
+  }
 
   // If user exits fullscreen, resize canvas to window
   document.addEventListener("fullscreenchange", () => { setTimeout(resizeCanvas, 80); });
