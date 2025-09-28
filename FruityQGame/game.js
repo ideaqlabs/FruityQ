@@ -306,33 +306,46 @@
       ctx.fillRect(basket.x + shakeX, basket.y, basket.width, basket.height);
     }
 
-    // draw fruits (rotated)
-    for (const f of fruits) {
-      ctx.save();
-      ctx.translate(f.x + f.size/2, f.y + f.size/2);
-      ctx.rotate(f.angle);
-      if (assets[f.type]) {
-        ctx.drawImage(assets[f.type], -f.size/2, -f.size/2, f.size, f.size);
-      } else {
-        ctx.fillStyle = "#FF6B6B";
-        ctx.fillRect(-f.size/2, -f.size/2, f.size, f.size);
-      }
-      ctx.restore();
-    }
+    // detect mobile device once
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-    // draw bombs (rotated)
-    for (const b of bombs) {
-      ctx.save();
-      ctx.translate(b.x + b.size/2, b.y + b.size/2);
-      ctx.rotate(b.angle);
-      if (assets.bomb) {
-        ctx.drawImage(assets.bomb, -b.size/2, -b.size/2, b.size, b.size);
-      } else {
-        ctx.fillStyle = "#333";
-        ctx.fillRect(-b.size/2, -b.size/2, b.size, b.size);
-      }
-      ctx.restore();
-    }
+// draw fruits (rotated)
+for (const f of fruits) {
+  ctx.save();
+  ctx.translate(f.x + f.size/2, f.y + f.size/2);
+  ctx.rotate(f.angle);
+
+  // increase size by 10% if on mobile
+  const fruitSize = isMobile ? f.size * 1.1 : f.size;
+
+  if (assets[f.type]) {
+    ctx.drawImage(assets[f.type], -fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
+  } else {
+    ctx.fillStyle = "#FF6B6B";
+    ctx.fillRect(-fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
+  }
+
+  ctx.restore();
+}
+
+// draw bombs (rotated)
+for (const b of bombs) {
+  ctx.save();
+  ctx.translate(b.x + b.size/2, b.y + b.size/2);
+  ctx.rotate(b.angle);
+
+  // increase size by 10% if on mobile
+  const bombSize = isMobile ? b.size * 1.1 : b.size;
+
+  if (assets.bomb) {
+    ctx.drawImage(assets.bomb, -bombSize/2, -bombSize/2, bombSize, bombSize);
+  } else {
+    ctx.fillStyle = "#333";
+    ctx.fillRect(-bombSize/2, -bombSize/2, bombSize, bombSize);
+  }
+
+  ctx.restore();
+}
 
     // floating effects
     ctx.font = "20px Poppins, Arial, sans-serif";
