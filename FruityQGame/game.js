@@ -144,6 +144,9 @@ window.addEventListener("focus", resumeGame);
     touchTargetX = null;
     keys = {};
 
+  // ✅ Load saved coins from localStorage (persistent coins)
+  coins = parseInt(localStorage.getItem("playerCoins") || "0", 10);
+
     // set basket size relative to canvas
     const bw = Math.max(80, Math.floor(canvas.width * 0.18));
     const bh = Math.max(40, Math.floor(canvas.height * 0.11));
