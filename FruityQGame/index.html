@@ -14,10 +14,18 @@
   <meta name="theme-color" content="#000822">
 </head>
 <body>
-  <!-- Game Container: this is what we requestFullscreen() on -->
+  <!-- Start Screen -->
+  <div id="startScreen">
+    <h1>🍉 FruityQ 🍎</h1>
+    <button id="startBtn">Start Game</button>
+    <div class="intro-watermark">IdeaQLabs</div>
+  </div>
+
+  <!-- Game Container -->
   <div id="gameContainer" class="hidden">
-    <!-- HUD (visible only during play) -->
+    <!-- Game UI: HUD + Canvas -->
     <div id="gameUI" class="hidden">
+      <!-- HUD -->
       <div id="hud">
         <span id="score">Score: 0</span>
         <span id="timer">Time: 60</span>
@@ -25,13 +33,13 @@
         <span id="totalCoins">Total Coins: 0</span>
       </div>
 
-      <!-- Canvas wrapper centers the canvas -->
+      <!-- Canvas Wrapper -->
       <div id="canvasWrapper">
         <canvas id="gameCanvas"></canvas>
       </div>
     </div>
 
-    <!-- Game Over overlay (inside container so it shows in fullscreen) -->
+    <!-- Game Over Screen -->
     <div id="gameOverScreen" class="hidden">
       <div class="overlay">
         <h2>Game Over!</h2>
@@ -39,13 +47,6 @@
         <button id="playAgainBtn">Play Again</button>
       </div>
     </div>
-  </div>
-
-  <!-- Start screen (shown on load) -->
-  <div id="startScreen">
-    <h1>🍉 FruityQ 🍎</h1>
-    <button id="startBtn">Start Game</button>
-    <div class="intro-watermark">IdeaQLabs</div>
   </div>
 
   <script src="game.js"></script>
