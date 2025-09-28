@@ -6,10 +6,7 @@
   <title>FruityQ</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Favicon (browser tab icon) -->
   <link rel="icon" type="image/png" sizes="192x192" href="assets/strawberry.png">
-
-  <!-- Progressive Web App manifest -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000822">
 </head>
@@ -23,23 +20,22 @@
 
   <!-- Game Container -->
   <div id="gameContainer" class="hidden">
-    <!-- Game UI: HUD + Canvas -->
     <div id="gameUI" class="hidden">
       <!-- HUD -->
       <div id="hud">
-        <span id="score">Score: 0</span>
-        <span id="timer">Time: 60</span>
-        <span id="coins">Coins: 0</span>
-        <span id="totalCoins">Total Coins: 0</span>
+        <div class="hud-item" id="score">Score: 0</div>
+        <div class="hud-item" id="timer">Time: 60</div>
+        <div class="hud-item" id="coins">Coins: 0</div>
+        <div class="hud-item" id="totalCoins">Total Coins: 0</div>
       </div>
 
-      <!-- Canvas Wrapper -->
+      <!-- Canvas -->
       <div id="canvasWrapper">
         <canvas id="gameCanvas"></canvas>
       </div>
     </div>
 
-    <!-- Game Over Screen -->
+    <!-- Game Over -->
     <div id="gameOverScreen" class="hidden">
       <div class="overlay">
         <h2>Game Over!</h2>
