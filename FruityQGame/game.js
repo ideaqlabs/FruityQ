@@ -210,6 +210,10 @@ window.addEventListener("focus", resumeGame);
     stopGameLoop();
     // hide game UI
     if (gameUI) gameUI.classList.add("hidden");
+    
+    // ✅ Save coins to localStorage
+    localStorage.setItem("playerCoins", coins);
+
     // show overlay inside container (works in fullscreen)
     if (gameOverScreen) {
       gameOverScreen.classList.remove("hidden");
