@@ -65,12 +65,27 @@ body {
 }
 
 /* HUD (score bar) - centered above the canvas */
-#gameUI { position: relative; display:flex; flex-direction:column; align-items:center; }
+/*#gameUI { position: relative; display:flex; flex-direction:column; align-items:center; }*/
 
 /* HUD design - border width will be set from JS to match canvas width */
-#hud {
+/*#hud {
   display: flex;
   gap: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.45);
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}*/
+
+#hud {
+  display: flex;
+  flex-wrap: wrap;       /* ✅ let items wrap */
+  gap: 16px;             /* smaller gap for mobile */
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
