@@ -38,13 +38,16 @@
 
   // Pause when tab/app is hidden
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      gamePaused = true;
-    } else {
-      gamePaused = false;
-      lastTime = performance.now(); // reset timer so game resumes smoothly
-    }
-  });
+  if (document.hidden) {
+    pauseGame();
+  } else {
+    resumeGame();
+  }
+});
+
+window.addEventListener("blur", pauseGame);
+window.addEventListener("focus", resumeGame);
+
 
   // Extra safety: focus/blur
   window.addEventListener("blur", () => gamePaused = true);
@@ -239,6 +242,21 @@
       rotationSpeed: (Math.random() - 0.5) * 0.04
     });
   }
+
+  function pauseGame() {
+  gamePaused = true;
+  if (spawnFruitInterval) { clearInterval(spawnFruitInterval); spawnFruitInterval = null; }
+  if (spawnBombInterval) { clearInterval(spawnBombInterval); spawnBombInterval = null; }
+}
+
+function resumeGame() {
+  gamePaused = false;
+  lastTime = performance.now();
+
+  // restart spawn intervals
+  if (!spawnFruitInterval) spawnFruitInterval = setInterval(spawnFruit, 1400);
+  if (!spawnBombInterval) spawnBombInterval = setInterval(spawnBomb, 5000);
+}
 
   /* ---------- Visual effects ---------- */
   function addEffect(x, y, text, color = "white") {
