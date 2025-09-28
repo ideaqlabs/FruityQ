@@ -33,6 +33,26 @@
   const assets = {};
   const fruitTypes = ["apple","orange","lemon","watermelon","grapes","strawberry"];
 
+  let gamePaused = false;
+  let lastTime = performance.now();
+
+  // Pause when tab/app is hidden
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      gamePaused = true;
+    } else {
+      gamePaused = false;
+      lastTime = performance.now(); // reset timer so game resumes smoothly
+    }
+  });
+
+  // Extra safety: focus/blur
+  window.addEventListener("blur", () => gamePaused = true);
+  window.addEventListener("focus", () => {
+    gamePaused = false;
+    lastTime = performance.now();
+  });
+
   // Resize canvas to fit container or window; maintain sensible sizes
   function resizeCanvas() {
     // Prefer gameContainer rect when visible; else fallback to window
@@ -358,15 +378,26 @@ for (const b of bombs) {
     }
   }
 
-  function gameLoop() {
-    update();
+  function gameLoop(timestamp) {
+  if (!gamePaused) {
+    let delta = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // normalize delta so speed stays consistent (~16.67ms at 60fps baseline)
+    update(delta / 16.67);
     draw();
+
     const scoreEl = document.getElementById("score");
     const coinsEl = document.getElementById("coins");
     if (scoreEl) scoreEl.textContent = "Score: " + score;
     if (coinsEl) coinsEl.textContent = "Coins: " + coins;
-    rafId = requestAnimationFrame(gameLoop);
+  } else {
+    lastTime = timestamp; // reset timer so no jump on resume
   }
+
+  rafId = requestAnimationFrame(gameLoop);
+}
+
 
   /* ---------- Hooks ---------- */
   // Start button: hide start screen, show container, request fullscreen, load assets & start
