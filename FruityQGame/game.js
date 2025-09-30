@@ -7,7 +7,6 @@
   const startBtn = document.getElementById("startBtn");
   const gameUI = document.getElementById("gameUI");
   const hud = document.getElementById("hud");
-  const canvasWrapper = document.getElementById("canvasWrapper");
   const gameOverScreen = document.getElementById("gameOverScreen");
   const finalScoreEl = document.getElementById("finalScore");
   const playAgainBtn = document.getElementById("playAgainBtn");
@@ -198,24 +197,19 @@
     spawnFruitInterval = spawnBombInterval = timerInterval = null;
   }
 
-function startGame() {
-  // Unhide the main game container
-  const gameContainer = document.getElementById("gameContainer");
-  if (gameContainer) gameContainer.classList.remove("hidden");
+  function startGame() {
+    startScreen.classList.add("hidden");
+    gameContainer.classList.remove("hidden");
+    gameUI.classList.remove("hidden");
+    gameOverScreen.classList.add("hidden");
 
-  // Show HUD / hide Game Over
-  gameUI.classList.remove("hidden");
-  gameOverScreen.classList.add("hidden");
+    initGameState();
+    resizeCanvas();
+    startGameLoop();
 
-  // Initialize game state
-  initGameState();
-
-  // Resize canvas to fit container / fullscreen
-  resizeCanvas();
-
-  // Start main game loop
-  startGameLoop();
-}
+    // request fullscreen
+    try { gameContainer.requestFullscreen(); } catch(e) {}
+  }
 
   function endGame() {
     stopGameLoop();
@@ -321,20 +315,14 @@ function startGame() {
 
     const shakeX = basket.shake ? (Math.random()-0.5)*10 : 0;
     if (assets.basket) ctx.drawImage(assets.basket, basket.x+shakeX, basket.y, basket.width, basket.height);
-    else {
-      ctx.fillStyle="#FFD166";
-      ctx.fillRect(basket.x+shakeX, basket.y, basket.width, basket.height);
-    }
-
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    else ctx.fillRect(basket.x+shakeX, basket.y, basket.width, basket.height);
 
     for (const f of fruits) {
       ctx.save();
       ctx.translate(f.x+f.size/2,f.y+f.size/2);
       ctx.rotate(f.angle);
-      const fruitSize = isMobile ? f.size*1.1 : f.size;
-      if (assets[f.type]) ctx.drawImage(assets[f.type], -fruitSize/2, -fruitSize/2, fruitSize, fruitSize);
-      else { ctx.fillStyle="#FF6B6B"; ctx.fillRect(-fruitSize/2,-fruitSize/2,fruitSize,fruitSize); }
+      if (assets[f.type]) ctx.drawImage(assets[f.type], -f.size/2, -f.size/2, f.size, f.size);
+      else ctx.fillRect(-f.size/2,-f.size/2,f.size,f.size);
       ctx.restore();
     }
 
@@ -342,9 +330,8 @@ function startGame() {
       ctx.save();
       ctx.translate(b.x+b.size/2,b.y+b.size/2);
       ctx.rotate(b.angle);
-      const bombSize = isMobile ? b.size*1.1 : b.size;
-      if (assets.bomb) ctx.drawImage(assets.bomb, -bombSize/2, -bombSize/2, bombSize, bombSize);
-      else { ctx.fillStyle="#333"; ctx.fillRect(-bombSize/2,-bombSize/2,bombSize,bombSize); }
+      if (assets.bomb) ctx.drawImage(assets.bomb, -b.size/2, -b.size/2, b.size, b.size);
+      else ctx.fillRect(-b.size/2,-b.size/2,b.size,b.size);
       ctx.restore();
     }
 
@@ -382,10 +369,6 @@ function startGame() {
 
   // --------------- Hooks -----------------
   startBtn.addEventListener("click", () => {
-    startScreen.classList.add("hidden");
-    gameContainer.classList.remove("hidden");
-    resizeCanvas();
-    try { gameContainer.requestFullscreen(); } catch(e) {}
     loadAssets(() => startGame());
   });
 
@@ -403,8 +386,4 @@ function startGame() {
     gameOverScreen.classList.add("hidden");
     resizeCanvas();
   })();
-
 })();
-
-
-
