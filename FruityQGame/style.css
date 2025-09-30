@@ -71,7 +71,7 @@ body {
   flex-direction: column; /* top row + bottom row */
   align-items: center;
   color: white;
-  font-size: 20px;
+  font-size: 15px;
   font-family: 'Poppins', sans-serif;
   margin-bottom: 10px;
   gap: 5px;
