@@ -136,14 +136,14 @@ body {
 #gameCanvas {
   display: block;
   background: #000822;
-  border: 3px solid solid #a4b4bd;
+  border: 3px solid #a4b4bd;
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.6);
   image-rendering: auto;
 
   /* Make canvas width follow container and height auto */
   max-width: 100%;
-  max-height: calc(100% - 130px); /* leave space for HUD + padding */
+  max-height: calc(100% - 120px); /* leave space for HUD + padding */
   height: auto;
   width: auto;
 }
