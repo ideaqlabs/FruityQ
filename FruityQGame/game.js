@@ -198,14 +198,24 @@
     spawnFruitInterval = spawnBombInterval = timerInterval = null;
   }
 
-  function startGame() {
-    gameUI.classList.remove("hidden");
-    gameOverScreen.classList.add("hidden");
+function startGame() {
+  // Unhide the main game container
+  const gameContainer = document.getElementById("gameContainer");
+  if (gameContainer) gameContainer.classList.remove("hidden");
 
-    initGameState();
-    resizeCanvas();
-    startGameLoop();
-  }
+  // Show HUD / hide Game Over
+  gameUI.classList.remove("hidden");
+  gameOverScreen.classList.add("hidden");
+
+  // Initialize game state
+  initGameState();
+
+  // Resize canvas to fit container / fullscreen
+  resizeCanvas();
+
+  // Start main game loop
+  startGameLoop();
+}
 
   function endGame() {
     stopGameLoop();
