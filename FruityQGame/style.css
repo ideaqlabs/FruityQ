@@ -72,13 +72,16 @@ body {
   justify-content: center;
   margin: 10px auto;
   padding: 10px 20px;
-  border: 2px solid #00aaff;   /* theme color */
+  border: 2px solid #00aaff;
   border-radius: 12px;
-  background: rgba(0, 8, 34, 0.85); /* deep blue translucent background */
-  max-width: 800px;             /* prevent stretching too wide */
+  background: rgba(0, 8, 34, 0.85);
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
 
+  /* Always match canvas width */
+  width: 100%;
+  max-width: 900px;   /* same as max desktop canvas width */
+  box-sizing: border-box;
+}
 /* HUD inside the scoreboard */
 #hud {
   display: flex;
