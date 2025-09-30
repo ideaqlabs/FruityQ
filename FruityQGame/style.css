@@ -58,38 +58,42 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 12px;
+  overflow: hidden;
+  padding-top: 10px; /* space for HUD */
 }
 
 /* ----------- HUD ----------- */
+
+/* Scoreboard container */
 #scoreboard {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
   margin: 10px auto;
   padding: 10px 20px;
-  border: 2px solid rgba(255,255,255,0.12);
+  border: 2px solid #00aaff;
   border-radius: 12px;
   background: rgba(0, 8, 34, 0.85);
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  width: 95%;
-  max-width: 900px;
+  width: 100%;
+  max-width: 900px;   /* same as max desktop canvas width */
   box-sizing: border-box;
 }
 
+/* HUD inside the scoreboard */
 #hud {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: white;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
   gap: 5px;
   width: 100%;
-  color: #fff;
-  font-size: 16px;
 }
 
 /* Top row (Score, Time, Coins) */
@@ -97,7 +101,7 @@ body {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 8px; /* reduced gap to prevent wrapping */
   width: 100%;
 }
 
@@ -106,7 +110,6 @@ body {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: 5px;
 }
 
 .hud-item {
@@ -114,26 +117,35 @@ body {
   text-align: center;
 }
 
-/* Desktop: force top row in single line */
+/* Desktop: merge into one line */
 @media (min-width: 768px) {
-  .hud-top {
+  #hud {
+    flex-direction: row;
+    justify-content: center;
     flex-wrap: nowrap;
+    gap: 16px; /* reduced gap to fit in single line */
   }
+
+  .hud-top,
   .hud-bottom {
-    margin-top: 8px;
+    display: contents;
   }
 }
 
-/* -------------------- CANVAS -------------------- */
+/* Canvas styling */
 #gameCanvas {
   display: block;
-  background: rgba(0, 8, 34, 0.85);
+  background: #000822;
   border: 3px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.6);
   image-rendering: auto;
-  max-width: 95%;
+
+  /* Make canvas width follow container and height auto */
+  max-width: 100%;
+  max-height: calc(100% - 100px); /* leave space for HUD + padding */
   height: auto;
+  width: auto;
 }
 
 /* -------------------- GAME OVER OVERLAY -------------------- */
@@ -182,9 +194,8 @@ body {
 
 /* -------------------- RESPONSIVE -------------------- */
 @media (max-width: 480px) {
-  #hud { gap: 8px; padding: 8px 12px; }
+  #hud { gap: 6px; padding: 8px 12px; }
   #startScreen h1 { font-size: 2.4rem; }
   #startBtn { font-size: 1rem; padding: 12px 24px; }
   #gameOverScreen .overlay { padding: 24px 36px; }
 }
-
