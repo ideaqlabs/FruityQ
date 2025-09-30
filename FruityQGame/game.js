@@ -212,6 +212,16 @@
   function draw() {
     ctx.fillStyle="#000822"; ctx.fillRect(0,0,canvas.width,canvas.height);
 
+    // Draw watermark at the center
+    ctx.save();
+    const watermarkSize = Math.floor(canvas.width * 0.15);
+    ctx.font = `bold ${watermarkSize}px "Gill Sans", Arial, sans-serif`;
+    ctx.fillStyle = "rgba(255,255,255,0.08)"; // subtle
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("IdeaQLabs", canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+    
     const shakeX = basket.shake?(Math.random()-0.5)*10:0;
     if(assets.basket) ctx.drawImage(assets.basket,basket.x+shakeX,basket.y,basket.width,basket.height);
     else ctx.fillRect(basket.x+shakeX,basket.y,basket.width,basket.height);
