@@ -64,28 +64,51 @@ body {
   justify-content: center;
 }
 
-/* ---------------- HUD ---------------- */
+/* ----------- HUD ----------- */
+
 #hud {
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* top row + bottom row */
   align-items: center;
+  color: white;
   font-size: 20px;
   font-family: 'Poppins', sans-serif;
-  color: white;
   margin-bottom: 10px;
-  flex-wrap: wrap; /* allow wrapping on small screens */
-  gap: 20px;       /* space between items */
+  gap: 5px;
+}
+
+/* top row (Score, Time, Coins) */
+.hud-top {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;   /* allow wrapping on small screens */
+  gap: 20px;
+  width: 100%;
+}
+
+/* bottom row (Total Coins) */
+.hud-bottom {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .hud-item {
-  min-width: 120px;   /* keeps widths stable */
+  min-width: 100px;
   text-align: center;
 }
 
-/* On larger screens: force one line */
+/* On larger screens: put everything in one row */
 @media (min-width: 768px) {
   #hud {
-    flex-wrap: nowrap;   /* keep all in one row */
+    flex-direction: row;   /* one horizontal line */
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 30px;
+  }
+
+  .hud-top, .hud-bottom {
+    display: contents; /* merge into parent row */
   }
 }
 
