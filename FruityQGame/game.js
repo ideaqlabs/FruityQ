@@ -71,20 +71,34 @@
   window.addEventListener("focus", resumeGame);
 
   function resizeCanvas() {
-    const rect = gameContainer.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height - 60; // leave space for HUD
+  const rect = gameContainer.getBoundingClientRect();
+  
+  // Detect desktop (width >= 768px)
+  const isDesktop = window.innerWidth >= 768;
 
-    const bw = Math.max(80, Math.floor(canvas.width * 0.18));
-    const bh = Math.max(40, Math.floor(canvas.height * 0.11));
-    if (basket) {
-      basket.width = bw;
-      basket.height = bh;
-      basket.y = canvas.height - bh - 10;
-      basket.x = Math.max(0, Math.min(canvas.width - bw, basket.x));
-    }
+  canvas.width = rect.width;
+  
+  if (isDesktop) {
+    // increase height for desktop
+    canvas.height = rect.height - 20; // less padding from bottom
+  } else {
+    // mobile / small screen
+    canvas.height = rect.height - 60; // leave space for HUD / bottom padding
   }
-  window.addEventListener("resize", resizeCanvas);
+
+  // Update basket size & position
+  const bw = Math.max(80, Math.floor(canvas.width * 0.18));
+  const bh = Math.max(40, Math.floor(canvas.height * 0.11));
+  if (basket) {
+    basket.width = bw;
+    basket.height = bh;
+    basket.y = canvas.height - bh - 10;
+    basket.x = Math.max(0, Math.min(canvas.width - bw, basket.x));
+  }
+}
+
+window.addEventListener("resize", resizeCanvas);
+
 
   // ---------- Load Assets ----------
   function loadAssets(callback) {
