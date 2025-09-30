@@ -142,10 +142,10 @@ body {
   image-rendering: auto;
 
   /* Make canvas width follow container and height auto */
-  max-width: 100%;
+  max-width: 900px;
   max-height: calc(100% - 120px); /* leave space for HUD + padding */
   height: auto;
-  width: auto;
+  width: 100%;
 }
 
 /* -------------------- GAME OVER OVERLAY -------------------- */
