@@ -64,33 +64,29 @@ body {
   justify-content: center;
 }
 
+/* ---------------- HUD ---------------- */
 #hud {
   display: flex;
-  flex-direction: column; /* Stack top row and bottom row */
+  justify-content: center;
   align-items: center;
   font-size: 20px;
   font-family: 'Poppins', sans-serif;
   color: white;
   margin-bottom: 10px;
-}
-
-/* Top row: Score, Time, Coins in one line */
-.hud-top {
-  display: flex;
-  justify-content: center; /* center the group */
-  gap: 40px;               /* spacing between items */
-  margin-bottom: 5px;
+  flex-wrap: wrap; /* allow wrapping on small screens */
+  gap: 20px;       /* space between items */
 }
 
 .hud-item {
+  min-width: 120px;   /* keeps widths stable */
   text-align: center;
-  min-width: 120px;  /* keeps items stable when numbers grow */
 }
 
-/* Bottom row: Total Coins centered */
-.hud-bottom {
-  text-align: center;
-  width: 100%;
+/* On larger screens: force one line */
+@media (min-width: 768px) {
+  #hud {
+    flex-wrap: nowrap;   /* keep all in one row */
+  }
 }
 
 /* Canvas wrapper centers canvas */
