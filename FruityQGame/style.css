@@ -61,37 +61,35 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 12px;
 }
 
 /* ----------- HUD ----------- */
-
-/* Scoreboard container */
 #scoreboard {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin: 10px auto;
   padding: 10px 20px;
   border: 2px solid #00aaff;
   border-radius: 12px;
   background: rgba(0, 8, 34, 0.85);
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-
-  /* Always match canvas width */
-  width: 100%;
-  max-width: 900px;   /* same as max desktop canvas width */
+  width: 95%;
+  max-width: 900px;
   box-sizing: border-box;
 }
-/* HUD inside the scoreboard */
+
 #hud {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: white;
-  font-size: 16px;
-  font-family: 'Poppins', sans-serif;
   gap: 5px;
   width: 100%;
+  color: #fff;
+  font-size: 16px;
 }
 
 /* Top row (Score, Time, Coins) */
@@ -108,6 +106,7 @@ body {
   display: flex;
   justify-content: center;
   width: 100%;
+  margin-top: 5px;
 }
 
 .hud-item {
@@ -115,22 +114,17 @@ body {
   text-align: center;
 }
 
-/* Desktop: merge into one line */
+/* Desktop: force top row in single line */
 @media (min-width: 768px) {
-  #hud {
-    flex-direction: row;
-    justify-content: center;
+  .hud-top {
     flex-wrap: nowrap;
-    gap: 30px;
   }
-
-  .hud-top,
   .hud-bottom {
-    display: contents;
+    margin-top: 8px;
   }
 }
 
-/* Canvas styling */
+/* -------------------- CANVAS -------------------- */
 #gameCanvas {
   display: block;
   background: #000822;
@@ -138,6 +132,8 @@ body {
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.6);
   image-rendering: auto;
+  max-width: 95%;
+  height: auto;
 }
 
 /* -------------------- GAME OVER OVERLAY -------------------- */
@@ -191,3 +187,4 @@ body {
   #startBtn { font-size: 1rem; padding: 12px 24px; }
   #gameOverScreen .overlay { padding: 24px 36px; }
 }
+
