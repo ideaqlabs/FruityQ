@@ -73,7 +73,7 @@ body {
   align-items: center;
   margin: 10px auto;
   padding: 10px 20px;
-  border: 2px solid #00aaff;
+  border: 2px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   background: rgba(0, 8, 34, 0.85);
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
@@ -97,7 +97,7 @@ body {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
 }
 
@@ -127,7 +127,7 @@ body {
 /* -------------------- CANVAS -------------------- */
 #gameCanvas {
   display: block;
-  background: #000822;
+  background: rgba(0, 8, 34, 0.85);
   border: 3px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.6);
