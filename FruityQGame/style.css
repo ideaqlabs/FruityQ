@@ -75,7 +75,7 @@ body {
   justify-content: center;
   margin: 10px auto;
   padding: 10px 20px;
-  border: 2px solid #44b878;
+  border: 2px solid #bfb065;
   border-radius: 12px;
   background: rgba(0, 8, 34, 0.85);
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
@@ -108,7 +108,7 @@ body {
 /* Bottom row (Total Coins) */
 .hud-bottom {
   display: flex;
-  color: #44b878;
+  color: #bfb065;
   justify-content: center;
   width: 100%;
 }
