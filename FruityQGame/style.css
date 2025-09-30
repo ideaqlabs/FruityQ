@@ -137,7 +137,7 @@ body {
 #gameCanvas {
   display: block;
   background: #000822;
-  border: 3px solid rgba(255,255,255,0.12);
+  border: 3px solid rgba(255,255,255,0.25);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.6);
   image-rendering: auto;
