@@ -64,29 +64,33 @@ body {
   justify-content: center;
 }
 
-/* HUD (score bar) - centered above canvas */
-#gameUI {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-/* HUD design - border width matches canvas (JS ensures this) */
 #hud {
   display: flex;
-  flex-wrap: wrap;       /* allow items to wrap on small screens */
-  gap: 16px;
+  flex-direction: column; /* Stack top row and bottom row */
   align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  background: rgba(0,0,0,0.45);
-  border-radius: 10px;
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  font-size: 20px;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  margin-bottom: 10px;
+}
+
+/* Top row: Score, Time, Coins in one line */
+.hud-top {
+  display: flex;
+  justify-content: center; /* center the group */
+  gap: 40px;               /* spacing between items */
+  margin-bottom: 5px;
+}
+
+.hud-item {
+  text-align: center;
+  min-width: 120px;  /* keeps items stable when numbers grow */
+}
+
+/* Bottom row: Total Coins centered */
+.hud-bottom {
+  text-align: center;
+  width: 100%;
 }
 
 /* Canvas wrapper centers canvas */
