@@ -66,27 +66,41 @@ body {
 
 /* ----------- HUD ----------- */
 
-#hud {
+/* Scoreboard container */
+#scoreboard {
   display: flex;
-  flex-direction: column; /* top row + bottom row */
-  align-items: center;
-  color: white;
-  font-size: 15px;
-  font-family: 'Poppins', sans-serif;
-  margin-bottom: 10px;
-  gap: 5px;
+  justify-content: center;
+  margin: 10px auto;
+  padding: 10px 20px;
+  border: 2px solid #00aaff;   /* theme color */
+  border-radius: 12px;
+  background: rgba(0, 8, 34, 0.85); /* deep blue translucent background */
+  max-width: 800px;             /* prevent stretching too wide */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-/* top row (Score, Time, Coins) */
+/* HUD inside the scoreboard */
+#hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  gap: 5px;
+  width: 100%;
+}
+
+/* Top row (Score, Time, Coins) */
 .hud-top {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;   /* allow wrapping on small screens */
+  flex-wrap: wrap;
   gap: 15px;
   width: 100%;
 }
 
-/* bottom row (Total Coins) */
+/* Bottom row (Total Coins) */
 .hud-bottom {
   display: flex;
   justify-content: center;
@@ -98,25 +112,19 @@ body {
   text-align: center;
 }
 
-/* On larger screens: put everything in one row */
+/* Desktop: merge into one line */
 @media (min-width: 768px) {
   #hud {
-    flex-direction: row;   /* one horizontal line */
+    flex-direction: row;
     justify-content: center;
     flex-wrap: nowrap;
     gap: 30px;
   }
 
-  .hud-top, .hud-bottom {
-    display: contents; /* merge into parent row */
+  .hud-top,
+  .hud-bottom {
+    display: contents;
   }
-}
-
-/* Canvas wrapper centers canvas */
-#canvasWrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Canvas styling */
