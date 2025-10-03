@@ -70,29 +70,23 @@
   window.addEventListener("blur", pauseGame);
   window.addEventListener("focus", resumeGame);
 
+// ---------- Resize Canvas ----------
   function resizeCanvas() {
   const rect = gameContainer.getBoundingClientRect();
-  
-  // Detect desktop (width >= 768px)
-  const isDesktop = window.innerWidth >= 768;
+
+  // Get safe area insets (for notched devices)
+  const safeBottom = parseInt(getComputedStyle(document.body).paddingBottom) || 0;
 
   canvas.width = rect.width;
-  
-  if (isDesktop) {
-    // increase height for desktop
-    canvas.height = rect.height - 20; // less padding from bottom
-  } else {
-    // mobile / small screen
-    canvas.height = rect.height - 60; // leave space for HUD / bottom padding
-  }
+  canvas.height = rect.height - 60 - safeBottom; // leave space for HUD + notch safe area
 
-  // Update basket size & position
   const bw = Math.max(80, Math.floor(canvas.width * 0.18));
   const bh = Math.max(40, Math.floor(canvas.height * 0.11));
+
   if (basket) {
     basket.width = bw;
     basket.height = bh;
-    basket.y = canvas.height - bh - 10;
+    basket.y = canvas.height - bh - 10; // basket always inside visible canvas
     basket.x = Math.max(0, Math.min(canvas.width - bw, basket.x));
   }
 }
