@@ -200,3 +200,11 @@ body {
   #startBtn { font-size: 1rem; padding: 12px 24px; }
   #gameOverScreen .overlay { padding: 24px 36px; }
 }
+
+/* -------------------- SCREEN SAFE AREA -------------------- */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
